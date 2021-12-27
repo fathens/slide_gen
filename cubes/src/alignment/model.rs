@@ -20,8 +20,8 @@ pub struct PosAtFace {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct Cube {
-    home_face: Face,
+pub struct Square {
+    home_direction: Direction,
     home_pos: PosAtFace,
 }
 
@@ -33,7 +33,7 @@ pub struct Face {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CurrentFaces {
-    faces: HashMap<Face, Vec<Cube>>,
+    faces: HashMap<Face, Vec<Square>>,
 }
 
 impl PosAtFace {
@@ -45,16 +45,20 @@ impl PosAtFace {
     }
 }
 
-impl Cube {
-    pub fn new(face: Face, pos: PosAtFace) -> Cube {
-        Cube {
-            home_face: face,
+impl Square {
+    pub fn new(d: Direction, pos: PosAtFace) -> Square {
+        Square {
+            home_direction: d,
             home_pos: pos,
         }
     }
 
-    pub fn get_home(&self) -> (Face, PosAtFace) {
-        (self.home_face, self.home_pos)
+    pub fn get_direction(&self) -> Direction {
+        self.home_direction
+    }
+
+    pub fn get_pos(&self) -> PosAtFace {
+        self.home_pos
     }
 }
 
@@ -74,10 +78,10 @@ impl Face {
         self.limit_pos
     }
 
-    fn generate_cubes(&self) -> Vec<Cube> {
+    fn generate_cubes(&self) -> Vec<Square> {
         let max = self.limit_pos.left_right * self.limit_pos.up_down;
         (0..max)
-            .map(|i| Cube::new(*self, self.get_pos(i)))
+            .map(|i| Square::new(self.direction, self.get_pos(i)))
             .collect()
     }
 
@@ -126,7 +130,7 @@ impl CurrentFaces {
         CurrentFaces { faces }
     }
 
-    pub fn get_by_direction(&self, d: Direction) -> &Vec<Cube> {
+    pub fn get_by_direction(&self, d: Direction) -> &Vec<Square> {
         self.faces
             .iter()
             .find(|(face, _)| face.direction == d)

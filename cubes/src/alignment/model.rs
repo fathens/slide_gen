@@ -1,7 +1,9 @@
 use num_integer::*;
 use std::collections::HashMap;
+use strum::IntoEnumIterator;
+use strum_macros::EnumIter;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, EnumIter)]
 pub enum Direction {
     XPosi,
     XNega,
@@ -18,20 +20,20 @@ pub struct PosAtFace {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct Cube<'a> {
-    home_face: &'a Face,
+pub struct Cube {
+    home_face: Face,
     home_pos: PosAtFace,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct Face {
     direction: Direction,
     limit_pos: PosAtFace,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct CurrentSolid<'a> {
-    members: HashMap<Face, Vec<Cube<'a>>>,
+pub struct CurrentFaces {
+    faces: HashMap<Face, Vec<Cube>>,
 }
 
 impl PosAtFace {
@@ -40,6 +42,19 @@ impl PosAtFace {
             left_right: h,
             up_down: v,
         }
+    }
+}
+
+impl Cube {
+    pub fn new(face: Face, pos: PosAtFace) -> Cube {
+        Cube {
+            home_face: face,
+            home_pos: pos,
+        }
+    }
+
+    pub fn get_home(&self) -> (Face, PosAtFace) {
+        (self.home_face, self.home_pos)
     }
 }
 
@@ -57,6 +72,13 @@ impl Face {
 
     pub fn size(&self) -> PosAtFace {
         self.limit_pos
+    }
+
+    fn generate_cubes(&self) -> Vec<Cube> {
+        let max = self.limit_pos.left_right * self.limit_pos.up_down;
+        (0..max)
+            .map(|i| Cube::new(*self, self.get_pos(i)))
+            .collect()
     }
 
     /**
@@ -90,6 +112,29 @@ impl Face {
     }
 }
 
+impl CurrentFaces {
+    pub fn geenrate<F>(f: F) -> CurrentFaces
+    where
+        F: Fn(Direction) -> PosAtFace,
+    {
+        let faces = Direction::iter()
+            .map(|d| {
+                let face = Face::new(d, f(d));
+                (face, face.generate_cubes())
+            })
+            .collect();
+        CurrentFaces { faces }
+    }
+
+    pub fn get_by_direction(&self, d: Direction) -> &Vec<Cube> {
+        self.faces
+            .iter()
+            .find(|(face, _)| face.direction == d)
+            .unwrap()
+            .1
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -109,5 +154,15 @@ mod test {
         // over both
         assert_eq!(face.get_index(PosAtFace::new(8, 9)), 53);
         assert_eq!(face.get_pos(53), PosAtFace::new(3, 10));
+    }
+
+    #[test]
+    fn generate_faces() {
+        let faces = CurrentFaces::geenrate(|d| match d {
+            Direction::YNega => PosAtFace::new(4, 4),
+            _ => PosAtFace::new(5, 5),
+        });
+        assert_eq!(16, faces.get_by_direction(Direction::YNega).len());
+        assert_eq!(25, faces.get_by_direction(Direction::XPosi).len());
     }
 }

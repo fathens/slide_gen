@@ -32,8 +32,14 @@ pub struct Face {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Block {
+    squares: Vec<Square>, // least 1 and up to 3 elements
+}
+
+#[derive(Debug, Clone)]
 pub struct CurrentFaces {
-    faces: HashMap<Face, Vec<Square>>,
+    faces: Vec<Face>,
+    blocks: HashMap<Block, (Direction, PosAtFace)>,
 }
 
 impl PosAtFace {
@@ -78,7 +84,7 @@ impl Face {
         self.limit_pos
     }
 
-    fn generate_cubes(&self) -> Vec<Square> {
+    fn generate_squares(&self) -> Vec<Square> {
         let max = self.limit_pos.left_right * self.limit_pos.up_down;
         (0..max)
             .map(|i| Square::new(self.direction, self.get_pos(i)))
@@ -116,17 +122,22 @@ impl Face {
     }
 }
 
+impl Block {
+    pub fn new(squares: Vec<Square>) -> Block {
+        Block { squares }
+    }
+
+    pub fn get_square(&self, d: Direction) -> Option<Square> {
+        self.squares.into_iter().find(|s| s.home_direction == d)
+    }
+}
+
 impl CurrentFaces {
     pub fn geenrate<F>(f: F) -> CurrentFaces
     where
         F: Fn(Direction) -> PosAtFace,
     {
-        let faces = Direction::iter()
-            .map(|d| {
-                let face = Face::new(d, f(d));
-                (face, face.generate_cubes())
-            })
-            .collect();
+        let faces = Direction::iter().map(|d| Face::new(d, f(d))).collect();
         CurrentFaces { faces }
     }
 

@@ -1,21 +1,30 @@
+use derive_new::new;
+use getset::Getters;
 use std::collections::HashMap;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, new, Getters)]
 pub struct Size3D {
+    #[getset(get_copy = "pub")]
     x: u8,
+    #[getset(get_copy = "pub")]
     y: u8,
+    #[getset(get_copy = "pub")]
     z: u8,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, new, Getters)]
 pub struct Pos3D {
+    #[getset(get_copy = "pub")]
     x: u8,
+    #[getset(get_copy = "pub")]
     y: u8,
+    #[getset(get_copy = "pub")]
     z: u8,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, new, Getters)]
 pub struct Cube {
+    #[getset(get_copy = "pub")]
     home: Pos3D,
 }
 
@@ -23,24 +32,6 @@ pub struct Cube {
 pub struct Cubes {
     size: Size3D,
     parts: HashMap<Cube, Pos3D>,
-}
-
-impl Size3D {
-    pub fn new(x: u8, y: u8, z: u8) -> Size3D {
-        Size3D { x, y, z }
-    }
-}
-
-impl Pos3D {
-    pub fn new(x: u8, y: u8, z: u8) -> Pos3D {
-        Pos3D { x, y, z }
-    }
-}
-
-impl Cube {
-    pub fn new(home: Pos3D) -> Cube {
-        Cube { home }
-    }
 }
 
 impl Cubes {
@@ -116,7 +107,7 @@ mod test {
                     {
                         let p = Pos3D::new(xi, yi, zi);
                         println!("{:?}", p);
-                        let cs: Vec<_> = keys.iter().filter(|c| c.home == p).collect();
+                        let cs: Vec<_> = keys.iter().filter(|c| c.home() == p).collect();
                         assert_eq!(1, cs.len());
                         all.push(p);
                     }

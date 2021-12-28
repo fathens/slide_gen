@@ -1,113 +1,120 @@
-use num_integer::*;
+use derive_new::new;
+use getset::Getters;
 use std::collections::HashMap;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub enum Direction {
-    XPosi,
-    XNega,
-    YPosi,
-    YNega,
-    ZPosi,
-    ZNega,
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, new, Getters)]
+pub struct Size3D {
+    #[getset(get_copy = "pub")]
+    x: u8,
+    #[getset(get_copy = "pub")]
+    y: u8,
+    #[getset(get_copy = "pub")]
+    z: u8,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct PosAtFace {
-    left_right: u8,
-    up_down: u8,
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, new, Getters)]
+pub struct Pos3D {
+    #[getset(get_copy = "pub")]
+    x: u8,
+    #[getset(get_copy = "pub")]
+    y: u8,
+    #[getset(get_copy = "pub")]
+    z: u8,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct Cube<'a> {
-    home_face: &'a Face,
-    home_pos: PosAtFace,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct Face {
-    direction: Direction,
-    limit_pos: PosAtFace,
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, new, Getters)]
+pub struct Cube {
+    #[getset(get_copy = "pub")]
+    home: Pos3D,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct CurrentSolid<'a> {
-    members: HashMap<Face, Vec<Cube<'a>>>,
+pub struct Cubes {
+    size: Size3D,
+    parts: HashMap<Cube, Pos3D>,
 }
 
-impl PosAtFace {
-    pub fn new(h: u8, v: u8) -> PosAtFace {
-        PosAtFace {
-            left_right: h,
-            up_down: v,
+impl Cubes {
+    pub fn geenrate(x: u8, y: u8, z: u8) -> Cubes {
+        let mut parts = HashMap::new();
+        (0..y).for_each(|yi| {
+            (0..z).for_each(|zi| {
+                let home = Pos3D::new(0, yi, zi);
+                parts.insert(Cube::new(home), home);
+            });
+        });
+        (0..y).for_each(|yi| {
+            (0..z).for_each(|zi| {
+                let home = Pos3D::new(x - 1, yi, zi);
+                parts.insert(Cube::new(home), home);
+            });
+        });
+        (1..(x - 1)).for_each(|xi| {
+            (0..z).for_each(|zi| {
+                let home = Pos3D::new(xi, 0, zi);
+                parts.insert(Cube::new(home), home);
+            })
+        });
+        (1..(x - 1)).for_each(|xi| {
+            (0..z).for_each(|zi| {
+                let home = Pos3D::new(xi, y - 1, zi);
+                parts.insert(Cube::new(home), home);
+            })
+        });
+        (1..(y - 1)).for_each(|yi| {
+            (1..(x - 1)).for_each(|xi| {
+                let home = Pos3D::new(xi, yi, 0);
+                parts.insert(Cube::new(home), home);
+            })
+        });
+        (1..(y - 1)).for_each(|yi| {
+            (1..(x - 1)).for_each(|xi| {
+                let home = Pos3D::new(xi, yi, z - 1);
+                parts.insert(Cube::new(home), home);
+            })
+        });
+        Cubes {
+            size: Size3D::new(x, y, z),
+            parts,
         }
-    }
-}
-
-impl Face {
-    pub fn new(d: Direction, size: PosAtFace) -> Face {
-        Face {
-            direction: d,
-            limit_pos: size,
-        }
-    }
-
-    pub fn direction(&self) -> Direction {
-        self.direction
-    }
-
-    pub fn size(&self) -> PosAtFace {
-        self.limit_pos
-    }
-
-    /**
-    Convert index to position.
-
-    # Example
-    ```
-    use crate::cubes::alignment::model::*;
-    let face = Face::new(Direction::XNega, PosAtFace::new(5, 7));
-    let pos = PosAtFace::new(1, 2);
-    assert_eq!(face.get_index(pos), 11);
-    ```
-     */
-    pub fn get_index(&self, pos: PosAtFace) -> u8 {
-        pos.up_down * self.limit_pos.left_right + pos.left_right
-    }
-
-    /**
-    Convert position to index.
-
-    # Example
-    ```
-    use crate::cubes::alignment::model::*;
-    let face = Face::new(Direction::XNega, PosAtFace::new(5, 7));
-    assert_eq!(face.get_pos(11), PosAtFace::new(1, 2));
-    ```
-     */
-    pub fn get_pos(&self, index: u8) -> PosAtFace {
-        let (v, h) = index.div_rem(&self.limit_pos.left_right);
-        PosAtFace::new(h, v)
     }
 }
 
 #[cfg(test)]
 mod test {
+    use std::vec;
+
     use super::*;
 
     #[test]
-    fn get_index_and_pos() {
-        let face = Face::new(Direction::XNega, PosAtFace::new(5, 7));
+    fn generate() {
+        let x = 5;
+        let y = 4;
+        let z = 3;
+        let stage = Cubes::geenrate(x, y, z);
 
-        // over `left_right`
-        assert_eq!(face.get_index(PosAtFace::new(8, 2)), 18);
-        assert_eq!(face.get_pos(18), PosAtFace::new(3, 3));
+        let mut all = vec![];
+        let keys: Vec<_> = stage.parts.keys().collect();
+        (0..x).for_each(|xi| {
+            (0..y).for_each(|yi| {
+                (0..z).for_each(|zi| {
+                    if xi == 0
+                        || yi == 0
+                        || zi == 0
+                        || xi == (x - 1)
+                        || yi == (y - 1)
+                        || zi == (z - 1)
+                    {
+                        let p = Pos3D::new(xi, yi, zi);
+                        println!("{:?}", p);
+                        let cs: Vec<_> = keys.iter().filter(|c| c.home() == p).collect();
+                        assert_eq!(1, cs.len());
+                        all.push(p);
+                    }
+                })
+            })
+        });
 
-        // over `up_down`
-        assert_eq!(face.get_index(PosAtFace::new(2, 9)), 47);
-        assert_eq!(face.get_pos(47), PosAtFace::new(2, 9));
-
-        // over both
-        assert_eq!(face.get_index(PosAtFace::new(8, 9)), 53);
-        assert_eq!(face.get_pos(53), PosAtFace::new(3, 10));
+        assert_eq!(stage.parts.len(), all.len());
     }
 }

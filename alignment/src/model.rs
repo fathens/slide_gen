@@ -28,9 +28,11 @@ pub struct Cube {
     home: Pos3D,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Getters)]
 pub struct Cubes {
+    #[getset(get_copy = "pub")]
     size: Size3D,
+    #[getset(get_copy = "pub(crate)")]
     parts: HashMap<Cube, Pos3D>,
 }
 

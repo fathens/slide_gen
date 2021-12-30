@@ -4,59 +4,29 @@ use crate::model::{Cube, Direction, Pos3D, Size3D};
 
 pub fn move_one(pos: Pos3D, size: Size3D, d: Direction) -> Option<Pos3D> {
     match d {
-        Direction::XNega => {
-            if pos.x() == 0 {
-                None
-            } else {
-                Some(Pos3D::new(pos.x() - 1, pos.y(), pos.z()))
-            }
-        }
+        Direction::XNega => (pos.x() > 0).then(|| Pos3D::new(pos.x() - 1, pos.y(), pos.z())),
         Direction::XPosi => {
-            if pos.x() >= size.x() - 1 {
-                None
-            } else {
-                Some(Pos3D::new(pos.x() + 1, pos.y(), pos.z()))
-            }
+            (pos.x() < size.x() - 1).then(|| Pos3D::new(pos.x() + 1, pos.y(), pos.z()))
         }
-        Direction::YNega => {
-            if pos.y() == 0 {
-                None
-            } else {
-                Some(Pos3D::new(pos.x(), pos.y() - 1, pos.z()))
-            }
-        }
+        Direction::YNega => (pos.y() > 0).then(|| Pos3D::new(pos.x(), pos.y() - 1, pos.z())),
         Direction::YPosi => {
-            if pos.y() >= size.y() - 1 {
-                None
-            } else {
-                Some(Pos3D::new(pos.x(), pos.y() + 1, pos.z()))
-            }
+            (pos.y() < size.y() - 1).then(|| Pos3D::new(pos.x(), pos.y() + 1, pos.z()))
         }
-        Direction::ZNega => {
-            if pos.z() == 0 {
-                None
-            } else {
-                Some(Pos3D::new(pos.x(), pos.y(), pos.z() - 1))
-            }
-        }
+        Direction::ZNega => (pos.z() > 0).then(|| Pos3D::new(pos.x(), pos.y(), pos.z() - 1)),
         Direction::ZPosi => {
-            if pos.z() >= size.z() - 1 {
-                None
-            } else {
-                Some(Pos3D::new(pos.x(), pos.y(), pos.z() + 1))
-            }
+            (pos.z() < size.z() - 1).then(|| Pos3D::new(pos.x(), pos.y(), pos.z() + 1))
         }
     }
 }
 
-pub fn slide(parts: &mut HashMap<Pos3D, Cube>, size: Size3D, target: Pos3D, d: Direction) -> bool {
-    match move_one(target, size, d) {
+pub fn slide(parts: &mut HashMap<Pos3D, Cube>, size: Size3D, src: Pos3D, d: Direction) -> bool {
+    match move_one(src, size, d) {
         None => false,
         Some(next_pos) => {
             if !next_pos.on_face(size) || parts.contains_key(&next_pos) {
                 false
             } else {
-                match parts.remove(&target) {
+                match parts.remove(&src) {
                     None => false,
                     Some(cube) => {
                         parts.insert(next_pos, cube);

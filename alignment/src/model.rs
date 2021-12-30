@@ -1,6 +1,6 @@
 use derive_new::new;
 use getset::*;
-use std::collections::HashMap;
+use std::hash::Hash;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, new, CopyGetters)]
 pub struct Size3D {
@@ -28,57 +28,44 @@ pub struct Cube {
     home: Pos3D,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Getters, CopyGetters, MutGetters)]
-pub struct Cubes {
-    #[getset(get_copy = "pub")]
-    size: Size3D,
-    #[getset(get = "pub", get_mut = "pub(crate)")]
-    parts: HashMap<Pos3D, Cube>,
-}
+pub fn geenrate_surfaces(size: Size3D) -> Vec<Pos3D> {
+    let mut parts = vec![];
+    let mut set_cube = |xi, yi, zi| {
+        parts.push(Pos3D::new(xi, yi, zi));
+    };
 
-impl Cubes {
-    pub fn geenrate(x: u8, y: u8, z: u8) -> Cubes {
-        let mut parts = HashMap::new();
-        let mut set_cube = |home: Pos3D| {
-            parts.insert(home, Cube::new(home));
-        };
+    (0..size.y).for_each(|yi| {
+        (0..size.z).for_each(|zi| {
+            set_cube(0, yi, zi);
+        });
+    });
+    (0..size.y).for_each(|yi| {
+        (0..size.z).for_each(|zi| {
+            set_cube(size.x - 1, yi, zi);
+        });
+    });
+    (1..(size.x - 1)).for_each(|xi| {
+        (0..size.z).for_each(|zi| {
+            set_cube(xi, 0, zi);
+        })
+    });
+    (1..(size.x - 1)).for_each(|xi| {
+        (0..size.z).for_each(|zi| {
+            set_cube(xi, size.y - 1, zi);
+        })
+    });
+    (1..(size.y - 1)).for_each(|yi| {
+        (1..(size.x - 1)).for_each(|xi| {
+            set_cube(xi, yi, 0);
+        })
+    });
+    (1..(size.y - 1)).for_each(|yi| {
+        (1..(size.x - 1)).for_each(|xi| {
+            set_cube(xi, yi, size.z - 1);
+        })
+    });
 
-        (0..y).for_each(|yi| {
-            (0..z).for_each(|zi| {
-                set_cube(Pos3D::new(0, yi, zi));
-            });
-        });
-        (0..y).for_each(|yi| {
-            (0..z).for_each(|zi| {
-                set_cube(Pos3D::new(x - 1, yi, zi));
-            });
-        });
-        (1..(x - 1)).for_each(|xi| {
-            (0..z).for_each(|zi| {
-                set_cube(Pos3D::new(xi, 0, zi));
-            })
-        });
-        (1..(x - 1)).for_each(|xi| {
-            (0..z).for_each(|zi| {
-                set_cube(Pos3D::new(xi, y - 1, zi));
-            })
-        });
-        (1..(y - 1)).for_each(|yi| {
-            (1..(x - 1)).for_each(|xi| {
-                set_cube(Pos3D::new(xi, yi, 0));
-            })
-        });
-        (1..(y - 1)).for_each(|yi| {
-            (1..(x - 1)).for_each(|xi| {
-                set_cube(Pos3D::new(xi, yi, z - 1));
-            })
-        });
-
-        Cubes {
-            size: Size3D::new(x, y, z),
-            parts,
-        }
-    }
+    parts
 }
 
 #[cfg(test)]
@@ -92,10 +79,9 @@ mod test {
         let x = 5;
         let y = 4;
         let z = 3;
-        let stage = Cubes::geenrate(x, y, z);
+        let parts = geenrate_surfaces(Size3D::new(x, y, z));
 
         let mut all = vec![];
-        let keys: Vec<_> = stage.parts.values().collect();
         (0..x).for_each(|xi| {
             (0..y).for_each(|yi| {
                 (0..z).for_each(|zi| {
@@ -108,7 +94,7 @@ mod test {
                     {
                         let p = Pos3D::new(xi, yi, zi);
                         println!("{:?}", p);
-                        let cs: Vec<_> = keys.iter().filter(|c| c.home() == p).collect();
+                        let cs: Vec<_> = parts.iter().filter(|c| **c == p).collect();
                         assert_eq!(1, cs.len());
                         all.push(p);
                     }
@@ -116,6 +102,6 @@ mod test {
             })
         });
 
-        assert_eq!(stage.parts.len(), all.len());
+        assert_eq!(parts.len(), all.len());
     }
 }

@@ -12,7 +12,7 @@ pub fn move_one(pos: Pos3D, size: Size3D, d: Direction) -> Option<Pos3D> {
             }
         }
         Direction::XPosi => {
-            if pos.x() == size.x() - 1 {
+            if pos.x() >= size.x() - 1 {
                 None
             } else {
                 Some(Pos3D::new(pos.x() + 1, pos.y(), pos.z()))
@@ -26,7 +26,7 @@ pub fn move_one(pos: Pos3D, size: Size3D, d: Direction) -> Option<Pos3D> {
             }
         }
         Direction::YPosi => {
-            if pos.y() == size.y() - 1 {
+            if pos.y() >= size.y() - 1 {
                 None
             } else {
                 Some(Pos3D::new(pos.x(), pos.y() + 1, pos.z()))
@@ -40,7 +40,7 @@ pub fn move_one(pos: Pos3D, size: Size3D, d: Direction) -> Option<Pos3D> {
             }
         }
         Direction::ZPosi => {
-            if pos.z() == size.z() - 1 {
+            if pos.z() >= size.z() - 1 {
                 None
             } else {
                 Some(Pos3D::new(pos.x(), pos.y(), pos.z() + 1))
@@ -137,7 +137,7 @@ mod test {
             .collect();
 
         let pos234 = Pos3D::new(2, 3, 4);
-        parts.remove(&pos234);
+        assert!(parts.remove(&pos234).is_some());
 
         let pos224 = Pos3D::new(2, 2, 4);
         let cube224 = *parts.get(&pos224).unwrap();
@@ -151,21 +151,79 @@ mod test {
 
         let pos223 = Pos3D::new(2, 2, 3);
         let cube223 = *parts.get(&pos223).unwrap();
-        assert!(!slide(&mut parts, size, pos223, Direction::XPosi));
         assert!(!slide(&mut parts, size, pos223, Direction::XNega));
-        assert!(!slide(&mut parts, size, pos223, Direction::YPosi));
+        assert!(!slide(&mut parts, size, pos223, Direction::XPosi));
         assert!(!slide(&mut parts, size, pos223, Direction::YNega));
-        assert!(slide(&mut parts, size, pos223, Direction::ZPosi));
+        assert!(!slide(&mut parts, size, pos223, Direction::YPosi));
         assert!(!slide(&mut parts, size, pos223, Direction::ZNega));
+        assert!(slide(&mut parts, size, pos223, Direction::ZPosi));
         assert_eq!(*parts.get(&pos224).unwrap(), cube223);
+
+        assert_eq!(parts.get(&pos223), None);
+        assert!(!slide(&mut parts, size, pos223, Direction::XNega));
+        assert!(!slide(&mut parts, size, pos223, Direction::XPosi));
+        assert!(!slide(&mut parts, size, pos223, Direction::YNega));
+        assert!(!slide(&mut parts, size, pos223, Direction::YPosi));
+        assert!(!slide(&mut parts, size, pos223, Direction::ZNega));
+        assert!(!slide(&mut parts, size, pos223, Direction::ZPosi));
 
         let pos323 = Pos3D::new(3, 2, 3);
         assert_eq!(parts.get(&pos323), None);
-        assert!(!slide(&mut parts, size, pos323, Direction::XPosi));
         assert!(!slide(&mut parts, size, pos323, Direction::XNega));
-        assert!(!slide(&mut parts, size, pos323, Direction::YPosi));
+        assert!(!slide(&mut parts, size, pos323, Direction::XPosi));
         assert!(!slide(&mut parts, size, pos323, Direction::YNega));
-        assert!(!slide(&mut parts, size, pos323, Direction::ZPosi));
+        assert!(!slide(&mut parts, size, pos323, Direction::YPosi));
         assert!(!slide(&mut parts, size, pos323, Direction::ZNega));
+        assert!(!slide(&mut parts, size, pos323, Direction::ZPosi));
+    }
+
+    #[test]
+    fn slides_two_holes() {
+        let size = Size3D::new(3, 4, 5);
+        let mut parts: HashMap<Pos3D, Cube> = geenrate_surfaces(size)
+            .into_iter()
+            .map(|pos| (pos, Cube::new(pos)))
+            .collect();
+
+        let pos000 = Pos3D::new(0, 0, 0);
+        let pos001 = Pos3D::new(0, 0, 1);
+        assert!(parts.remove(&pos000).is_some());
+        assert!(parts.remove(&pos001).is_some());
+
+        let pos100 = Pos3D::new(1, 0, 0);
+        let cube100 = *parts.get(&pos100).unwrap();
+        assert!(slide(&mut parts, size, pos100, Direction::XNega));
+        assert!(!slide(&mut parts, size, pos100, Direction::XPosi));
+        assert!(!slide(&mut parts, size, pos100, Direction::ZNega));
+        assert!(!slide(&mut parts, size, pos100, Direction::ZPosi));
+        assert!(!slide(&mut parts, size, pos100, Direction::YPosi));
+        assert!(!slide(&mut parts, size, pos100, Direction::YNega));
+        assert_eq!(*parts.get(&pos000).unwrap(), cube100);
+
+        let pos101 = Pos3D::new(1, 0, 1);
+        let cube101 = *parts.get(&pos101).unwrap();
+        assert!(slide(&mut parts, size, pos101, Direction::ZNega));
+        assert!(!slide(&mut parts, size, pos101, Direction::ZPosi));
+        assert!(!slide(&mut parts, size, pos101, Direction::XNega));
+        assert!(!slide(&mut parts, size, pos101, Direction::XPosi));
+        assert!(!slide(&mut parts, size, pos101, Direction::YNega));
+        assert!(!slide(&mut parts, size, pos101, Direction::YPosi));
+        assert_eq!(*parts.get(&pos100).unwrap(), cube101);
+
+        assert_eq!(parts.get(&pos001), None);
+        assert!(!slide(&mut parts, size, pos001, Direction::XNega));
+        assert!(!slide(&mut parts, size, pos001, Direction::XPosi));
+        assert!(!slide(&mut parts, size, pos001, Direction::YNega));
+        assert!(!slide(&mut parts, size, pos001, Direction::YPosi));
+        assert!(!slide(&mut parts, size, pos001, Direction::ZNega));
+        assert!(!slide(&mut parts, size, pos001, Direction::ZPosi));
+
+        assert_eq!(parts.get(&pos101), None);
+        assert!(!slide(&mut parts, size, pos101, Direction::XNega));
+        assert!(!slide(&mut parts, size, pos101, Direction::XPosi));
+        assert!(!slide(&mut parts, size, pos101, Direction::YNega));
+        assert!(!slide(&mut parts, size, pos101, Direction::YPosi));
+        assert!(!slide(&mut parts, size, pos101, Direction::ZNega));
+        assert!(!slide(&mut parts, size, pos101, Direction::ZPosi));
     }
 }

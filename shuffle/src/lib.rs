@@ -2,11 +2,11 @@ use alignment::model::*;
 use rand::prelude::*;
 use smallvec::SmallVec;
 
-pub fn rand_hole(x: u8, y: u8, z: u8) -> Pos3D {
+pub fn rand_hole(size: Size3D) -> Pos3D {
     let mut rng = rand::thread_rng();
 
     let ai = rng.gen_range(0..3);
-    let ps: SmallVec<[u8; 3]> = [x, y, z]
+    let ps: SmallVec<[u8; 3]> = [size.x(), size.y(), size.z()]
         .into_iter()
         .enumerate()
         .map(|(i, v)| {
@@ -33,16 +33,16 @@ mod test {
     fn assert_rand_hole() {
         for _ in 0..100 {
             let mut rng = rand::thread_rng();
-
-            let x = rng.gen_range(3..10);
-            let y = rng.gen_range(3..10);
-            let z = rng.gen_range(3..10);
-
-            let pos = rand_hole(x, y, z);
-            println!("({}, {}, {}): {:?}", x, y, z, pos);
-            assert!(pos.x() < x);
-            assert!(pos.y() < y);
-            assert!(pos.z() < z);
+            let size = Size3D::new(
+                rng.gen_range(3..10),
+                rng.gen_range(3..10),
+                rng.gen_range(3..10),
+            );
+            let pos = rand_hole(size);
+            println!("{:?}: {:?}", size, pos);
+            assert!(pos.x() < size.x());
+            assert!(pos.y() < size.y());
+            assert!(pos.z() < size.z());
         }
     }
 }

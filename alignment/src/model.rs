@@ -33,48 +33,47 @@ pub struct Cubes {
     #[getset(get_copy = "pub")]
     size: Size3D,
     #[getset(get = "pub", get_mut = "pub(crate)")]
-    parts: HashMap<Cube, Pos3D>,
+    parts: HashMap<Pos3D, Cube>,
 }
 
 impl Cubes {
     pub fn geenrate(x: u8, y: u8, z: u8) -> Cubes {
         let mut parts = HashMap::new();
+        let mut set_cube = |home: Pos3D| {
+            parts.insert(home, Cube::new(home));
+        };
+
         (0..y).for_each(|yi| {
             (0..z).for_each(|zi| {
-                let home = Pos3D::new(0, yi, zi);
-                parts.insert(Cube::new(home), home);
+                set_cube(Pos3D::new(0, yi, zi));
             });
         });
         (0..y).for_each(|yi| {
             (0..z).for_each(|zi| {
-                let home = Pos3D::new(x - 1, yi, zi);
-                parts.insert(Cube::new(home), home);
+                set_cube(Pos3D::new(x - 1, yi, zi));
             });
         });
         (1..(x - 1)).for_each(|xi| {
             (0..z).for_each(|zi| {
-                let home = Pos3D::new(xi, 0, zi);
-                parts.insert(Cube::new(home), home);
+                set_cube(Pos3D::new(xi, 0, zi));
             })
         });
         (1..(x - 1)).for_each(|xi| {
             (0..z).for_each(|zi| {
-                let home = Pos3D::new(xi, y - 1, zi);
-                parts.insert(Cube::new(home), home);
+                set_cube(Pos3D::new(xi, y - 1, zi));
             })
         });
         (1..(y - 1)).for_each(|yi| {
             (1..(x - 1)).for_each(|xi| {
-                let home = Pos3D::new(xi, yi, 0);
-                parts.insert(Cube::new(home), home);
+                set_cube(Pos3D::new(xi, yi, 0));
             })
         });
         (1..(y - 1)).for_each(|yi| {
             (1..(x - 1)).for_each(|xi| {
-                let home = Pos3D::new(xi, yi, z - 1);
-                parts.insert(Cube::new(home), home);
+                set_cube(Pos3D::new(xi, yi, z - 1));
             })
         });
+
         Cubes {
             size: Size3D::new(x, y, z),
             parts,
@@ -96,7 +95,7 @@ mod test {
         let stage = Cubes::geenrate(x, y, z);
 
         let mut all = vec![];
-        let keys: Vec<_> = stage.parts.keys().collect();
+        let keys: Vec<_> = stage.parts.values().collect();
         (0..x).for_each(|xi| {
             (0..y).for_each(|yi| {
                 (0..z).for_each(|zi| {

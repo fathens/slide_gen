@@ -1,6 +1,7 @@
 use derive_new::new;
 use getset::*;
 use std::hash::Hash;
+use strum_macros::EnumIter;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, new, CopyGetters)]
 pub struct Size3D {
@@ -12,6 +13,7 @@ pub struct Size3D {
     z: u8,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, EnumIter)]
 pub enum Direction {
     XNega,
     XPosi,
@@ -19,6 +21,19 @@ pub enum Direction {
     YPosi,
     ZNega,
     ZPosi,
+}
+
+impl Direction {
+    pub fn invert(self) -> Self {
+        match self {
+            Direction::XNega => Direction::XPosi,
+            Direction::XPosi => Direction::XNega,
+            Direction::YNega => Direction::YPosi,
+            Direction::YPosi => Direction::YNega,
+            Direction::ZNega => Direction::ZPosi,
+            Direction::ZPosi => Direction::ZNega,
+        }
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, new, CopyGetters)]
@@ -91,8 +106,6 @@ pub fn generate_surfaces(size: Size3D) -> Vec<Pos3D> {
 
 #[cfg(test)]
 mod test {
-    use std::vec;
-
     use super::*;
 
     #[test]

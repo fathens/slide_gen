@@ -49,7 +49,7 @@ pub struct Cube {
     home: Pos3D,
 }
 
-pub fn geenrate_surfaces(size: Size3D) -> Vec<Pos3D> {
+pub fn generate_surfaces(size: Size3D) -> Vec<Pos3D> {
     let mut parts = vec![];
     let mut set_cube = |xi, yi, zi| {
         parts.push(Pos3D::new(xi, yi, zi));
@@ -98,7 +98,7 @@ mod test {
     #[test]
     fn generate() {
         let size = Size3D::new(5, 4, 3);
-        let parts = geenrate_surfaces(size);
+        let parts = generate_surfaces(size);
 
         let mut all = vec![];
         (0..size.x).for_each(|xi| {

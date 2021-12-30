@@ -40,7 +40,7 @@ pub fn slide(parts: &mut HashMap<Pos3D, Cube>, size: Size3D, src: Pos3D, d: Dire
 
 #[cfg(test)]
 mod test {
-    use crate::model::geenrate_surfaces;
+    use crate::model::generate_surfaces;
 
     use super::*;
 
@@ -101,7 +101,7 @@ mod test {
     #[test]
     fn slides() {
         let size = Size3D::new(3, 4, 5);
-        let mut parts: HashMap<Pos3D, Cube> = geenrate_surfaces(size)
+        let mut parts: HashMap<Pos3D, Cube> = generate_surfaces(size)
             .into_iter()
             .map(|pos| (pos, Cube::new(pos)))
             .collect();
@@ -150,7 +150,7 @@ mod test {
     #[test]
     fn slides_two_holes() {
         let size = Size3D::new(3, 4, 5);
-        let mut parts: HashMap<Pos3D, Cube> = geenrate_surfaces(size)
+        let mut parts: HashMap<Pos3D, Cube> = generate_surfaces(size)
             .into_iter()
             .map(|pos| (pos, Cube::new(pos)))
             .collect();

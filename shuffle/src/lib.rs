@@ -14,7 +14,7 @@ pub fn rand_hole(x: u8, y: u8, z: u8) -> Pos3D {
                 if rng.gen() {
                     0
                 } else {
-                    v
+                    v - 1
                 }
             } else {
                 rng.gen_range(0..v)
@@ -23,4 +23,26 @@ pub fn rand_hole(x: u8, y: u8, z: u8) -> Pos3D {
         .collect();
 
     Pos3D::new(ps[0], ps[1], ps[2])
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn assert_rand_hole() {
+        for _ in 0..100 {
+            let mut rng = rand::thread_rng();
+
+            let x = rng.gen_range(3..10);
+            let y = rng.gen_range(3..10);
+            let z = rng.gen_range(3..10);
+
+            let pos = rand_hole(x, y, z);
+            println!("({}, {}, {}): {:?}", x, y, z, pos);
+            assert!(pos.x() < x);
+            assert!(pos.y() < y);
+            assert!(pos.z() < z);
+        }
+    }
 }

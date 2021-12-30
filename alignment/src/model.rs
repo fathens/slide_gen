@@ -1,8 +1,8 @@
 use derive_new::new;
-use getset::Getters;
+use getset::*;
 use std::collections::HashMap;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, new, Getters)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, new, CopyGetters)]
 pub struct Size3D {
     #[getset(get_copy = "pub")]
     x: u8,
@@ -12,7 +12,7 @@ pub struct Size3D {
     z: u8,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, new, Getters)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, new, CopyGetters)]
 pub struct Pos3D {
     #[getset(get_copy = "pub")]
     x: u8,
@@ -22,15 +22,17 @@ pub struct Pos3D {
     z: u8,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, new, Getters)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, new, CopyGetters)]
 pub struct Cube {
     #[getset(get_copy = "pub")]
     home: Pos3D,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Getters, CopyGetters, MutGetters)]
 pub struct Cubes {
+    #[getset(get_copy = "pub")]
     size: Size3D,
+    #[getset(get = "pub", get_mut = "pub(crate)")]
     parts: HashMap<Cube, Pos3D>,
 }
 

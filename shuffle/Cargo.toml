@@ -1,14 +1,12 @@
 [package]
-name = "cubes"
+name = "shuffle"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-num-integer = "0.1"
-strum = "0.23"
-strum_macros = "0.23"
+alignment = { path = "../alignment" }
 derive-new = "~0.5"
 smallvec = "~1.7"
 derive_more = "~0.99"
 getset = "~0.1"
-
+rand = "~0.8"

@@ -1,11 +1,12 @@
 use alignment::model::*;
 use rand::prelude::*;
+use smallvec::SmallVec;
 
 pub fn rand_hole(x: u8, y: u8, z: u8) -> Pos3D {
     let mut rng = rand::thread_rng();
 
     let ai = rng.gen_range(0..3);
-    let ps: Vec<_> = [x, y, z]
+    let ps: SmallVec<[u8; 3]> = [x, y, z]
         .into_iter()
         .enumerate()
         .map(|(i, v)| {

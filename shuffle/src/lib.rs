@@ -1,4 +1,6 @@
-use alignment::model::*;
+use std::collections::HashMap;
+
+use alignment::{model::*, slide::{adjacents, move_one, slide}};
 use rand::prelude::*;
 use smallvec::SmallVec;
 
@@ -23,6 +25,31 @@ pub fn rand_hole(size: Size3D) -> Pos3D {
         .collect();
 
     Pos3D::new(ps[0], ps[1], ps[2])
+}
+
+pub fn simple_moves(size: Size3D, steps: u8) -> HashMap<Pos3D, Cube> {
+    let mut parts: HashMap<Pos3D, Cube> = generate_surfaces(size)
+        .into_iter()
+        .map(|pos| (pos, Cube::new(pos)))
+        .collect();
+
+    let hole = rand_hole(size);
+    parts.remove(&hole);
+
+    let mut rng = rand::thread_rng();
+
+    (0..steps).fold(hole, |hole, _| {
+        let ds = adjacents(hole, size);
+        let d = ds[rng.gen_range(0..ds.len())];
+        if let Some(pos) = move_one(hole, size, d) {
+            slide(&mut parts, size, pos, d.invert());
+            pos
+        } else {
+            hole
+        }
+    });
+
+    parts
 }
 
 #[cfg(test)]

@@ -40,9 +40,7 @@ mod test {
             );
             let pos = rand_hole(size);
             println!("{:?}: {:?}", size, pos);
-            assert!(pos.x() < size.x());
-            assert!(pos.y() < size.y());
-            assert!(pos.z() < size.z());
+            assert!(pos.on_face(size));
         }
     }
 }

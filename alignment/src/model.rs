@@ -12,6 +12,15 @@ pub struct Size3D {
     z: u8,
 }
 
+pub enum Direction {
+    XNega,
+    XPosi,
+    YNega,
+    YPosi,
+    ZNega,
+    ZPosi,
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, new, CopyGetters)]
 pub struct Pos3D {
     #[getset(get_copy = "pub")]
@@ -20,6 +29,18 @@ pub struct Pos3D {
     y: u8,
     #[getset(get_copy = "pub")]
     z: u8,
+}
+
+impl Pos3D {
+    pub fn on_face(self, size: Size3D) -> bool {
+        let is_face = self.x == 0
+            || self.y == 0
+            || self.z == 0
+            || self.x == size.x - 1
+            || self.y == size.y - 1
+            || self.z == size.z - 1;
+        is_face && self.x < size.x && self.y < size.y && self.z < size.z
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, new, CopyGetters)]
@@ -76,23 +97,15 @@ mod test {
 
     #[test]
     fn generate() {
-        let x = 5;
-        let y = 4;
-        let z = 3;
-        let parts = geenrate_surfaces(Size3D::new(x, y, z));
+        let size = Size3D::new(5, 4, 3);
+        let parts = geenrate_surfaces(size);
 
         let mut all = vec![];
-        (0..x).for_each(|xi| {
-            (0..y).for_each(|yi| {
-                (0..z).for_each(|zi| {
-                    if xi == 0
-                        || yi == 0
-                        || zi == 0
-                        || xi == (x - 1)
-                        || yi == (y - 1)
-                        || zi == (z - 1)
-                    {
-                        let p = Pos3D::new(xi, yi, zi);
+        (0..size.x).for_each(|xi| {
+            (0..size.y).for_each(|yi| {
+                (0..size.z).for_each(|zi| {
+                    let p = Pos3D::new(xi, yi, zi);
+                    if p.on_face(size) {
                         println!("{:?}", p);
                         let cs: Vec<_> = parts.iter().filter(|c| **c == p).collect();
                         assert_eq!(1, cs.len());
@@ -103,5 +116,16 @@ mod test {
         });
 
         assert_eq!(parts.len(), all.len());
+    }
+
+    #[test]
+    fn pos_on_face() {
+        assert!(Pos3D::new(2, 4, 6).on_face(Size3D::new(3, 5, 7)));
+        assert!(Pos3D::new(1, 4, 6).on_face(Size3D::new(3, 5, 7)));
+        assert!(Pos3D::new(1, 3, 6).on_face(Size3D::new(3, 5, 7)));
+        assert!(!Pos3D::new(1, 3, 5).on_face(Size3D::new(3, 5, 7)));
+        assert!(!Pos3D::new(3, 4, 6).on_face(Size3D::new(3, 5, 7)));
+        assert!(!Pos3D::new(2, 5, 6).on_face(Size3D::new(3, 5, 7)));
+        assert!(!Pos3D::new(2, 4, 7).on_face(Size3D::new(3, 5, 7)));
     }
 }

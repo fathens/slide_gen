@@ -1,6 +1,9 @@
 use std::collections::HashMap;
 
-use alignment::{model::*, slide::{adjacents, move_one, slide}};
+use alignment::{
+    model::*,
+    slide::{adjacents, move_one, slide},
+};
 use rand::prelude::*;
 use smallvec::SmallVec;
 
@@ -43,6 +46,7 @@ pub fn simple_moves(size: Size3D, steps: u8) -> HashMap<Pos3D, Cube> {
         let d = ds[rng.gen_range(0..ds.len())];
         if let Some(pos) = move_one(hole, size, d) {
             slide(&mut parts, size, pos, d.invert());
+            println!("Hole moved: {:?} -> {:?}", hole, pos);
             pos
         } else {
             hole
@@ -68,6 +72,29 @@ mod test {
             let pos = rand_hole(size);
             println!("{:?}: {:?}", size, pos);
             assert!(pos.on_face(size));
+        }
+    }
+
+    #[test]
+    fn hole_of_simple_moves() {
+        for _ in 0..100 {
+            let mut rng = rand::thread_rng();
+            let size = Size3D::new(
+                rng.gen_range(3..10),
+                rng.gen_range(3..10),
+                rng.gen_range(3..10),
+            );
+            let parts = simple_moves(size, rng.gen_range(10..100));
+
+            let mut holes = vec![];
+            generate_surfaces(size).into_iter().for_each(|pos| {
+                if !parts.contains_key(&pos) {
+                    holes.push(pos);
+                }
+            });
+
+            assert_eq!(1, holes.len());
+            assert!(holes[0].on_face(size));
         }
     }
 }

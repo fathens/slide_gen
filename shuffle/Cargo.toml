@@ -1,0 +1,12 @@
+[package]
+name = "shuffle"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+alignment = { path = "../alignment" }
+derive-new = "~0.5"
+smallvec = "~1.7"
+derive_more = "~0.99"
+getset = "~0.1"
+rand = "~0.8"

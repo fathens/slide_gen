@@ -44,13 +44,9 @@ pub fn simple_moves(size: Size3D, steps: u8) -> HashMap<Pos3D, Cube> {
     (0..steps).fold(hole, |hole, _| {
         let ds = adjacents(hole, size);
         let d = ds[rng.gen_range(0..ds.len())];
-        if let Some(pos) = move_one(hole, size, d) {
-            slide(&mut parts, size, pos, d.invert());
-            println!("Hole moved: {:?} -> {:?}", hole, pos);
-            pos
-        } else {
-            hole
-        }
+        let pos = move_one(hole, size, d).unwrap_or(hole);
+        slide(&mut parts, size, pos, d.invert());
+        pos
     });
 
     parts

@@ -56,6 +56,14 @@ impl Pos3D {
             || self.z == size.z - 1;
         is_face && self.x < size.x && self.y < size.y && self.z < size.z
     }
+
+    pub fn distance(self, other: Pos3D) -> f32 {
+        let diff = |a, b| ((a as f32) - (b as f32)).powi(2);
+        let x = diff(self.x, other.x);
+        let y = diff(self.y, other.y);
+        let z = diff(self.z, other.z);
+        (x + y + z).sqrt()
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, new, CopyGetters)]

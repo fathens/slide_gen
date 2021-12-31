@@ -54,6 +54,9 @@ pub fn simple_moves(size: Size3D, steps: u8) -> HashMap<Pos3D, Cube> {
 
 #[cfg(test)]
 mod test {
+    use std::fs::File;
+    use std::io::Write;
+
     use super::*;
 
     #[test]
@@ -73,6 +76,8 @@ mod test {
 
     #[test]
     fn hole_of_simple_moves() {
+        let mut file = File::create(".shuffle.csv").unwrap();
+        writeln!(file, "Parts, Steps, Diff total").unwrap();
         for _ in 0..100 {
             let mut rng = rand::thread_rng();
             let size = Size3D::new(
@@ -80,7 +85,8 @@ mod test {
                 rng.gen_range(3..10),
                 rng.gen_range(3..10),
             );
-            let parts = simple_moves(size, rng.gen_range(10..100));
+            let steps = rng.gen_range(10..100);
+            let parts = simple_moves(size, steps);
 
             let mut holes = vec![];
             generate_surfaces(size).into_iter().for_each(|pos| {
@@ -91,6 +97,11 @@ mod test {
 
             assert_eq!(1, holes.len());
             assert!(holes[0].on_face(size));
+
+            let diff_total = parts
+                .iter()
+                .fold(0_f32, |prev, (pos, cube)| prev + pos.distance(cube.home()));
+            writeln!(file, "{}, {}, {}", parts.len(), steps, diff_total).unwrap();
         }
     }
 }

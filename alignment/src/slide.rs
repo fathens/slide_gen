@@ -1,62 +1,34 @@
+use smallvec::*;
 use std::collections::HashMap;
+use strum::IntoEnumIterator;
 
 use crate::model::{Cube, Direction, Pos3D, Size3D};
 
 pub fn move_one(pos: Pos3D, size: Size3D, d: Direction) -> Option<Pos3D> {
     match d {
-        Direction::XNega => {
-            if pos.x() == 0 {
-                None
-            } else {
-                Some(Pos3D::new(pos.x() - 1, pos.y(), pos.z()))
-            }
-        }
+        Direction::XNega => (pos.x() > 0).then(|| Pos3D::new(pos.x() - 1, pos.y(), pos.z())),
         Direction::XPosi => {
-            if pos.x() >= size.x() - 1 {
-                None
-            } else {
-                Some(Pos3D::new(pos.x() + 1, pos.y(), pos.z()))
-            }
+            (pos.x() < size.x() - 1).then(|| Pos3D::new(pos.x() + 1, pos.y(), pos.z()))
         }
-        Direction::YNega => {
-            if pos.y() == 0 {
-                None
-            } else {
-                Some(Pos3D::new(pos.x(), pos.y() - 1, pos.z()))
-            }
-        }
+        Direction::YNega => (pos.y() > 0).then(|| Pos3D::new(pos.x(), pos.y() - 1, pos.z())),
         Direction::YPosi => {
-            if pos.y() >= size.y() - 1 {
-                None
-            } else {
-                Some(Pos3D::new(pos.x(), pos.y() + 1, pos.z()))
-            }
+            (pos.y() < size.y() - 1).then(|| Pos3D::new(pos.x(), pos.y() + 1, pos.z()))
         }
-        Direction::ZNega => {
-            if pos.z() == 0 {
-                None
-            } else {
-                Some(Pos3D::new(pos.x(), pos.y(), pos.z() - 1))
-            }
-        }
+        Direction::ZNega => (pos.z() > 0).then(|| Pos3D::new(pos.x(), pos.y(), pos.z() - 1)),
         Direction::ZPosi => {
-            if pos.z() >= size.z() - 1 {
-                None
-            } else {
-                Some(Pos3D::new(pos.x(), pos.y(), pos.z() + 1))
-            }
+            (pos.z() < size.z() - 1).then(|| Pos3D::new(pos.x(), pos.y(), pos.z() + 1))
         }
     }
 }
 
-pub fn slide(parts: &mut HashMap<Pos3D, Cube>, size: Size3D, target: Pos3D, d: Direction) -> bool {
-    match move_one(target, size, d) {
+pub fn slide(parts: &mut HashMap<Pos3D, Cube>, size: Size3D, src: Pos3D, d: Direction) -> bool {
+    match move_one(src, size, d) {
         None => false,
         Some(next_pos) => {
             if !next_pos.on_face(size) || parts.contains_key(&next_pos) {
                 false
             } else {
-                match parts.remove(&target) {
+                match parts.remove(&src) {
                     None => false,
                     Some(cube) => {
                         parts.insert(next_pos, cube);
@@ -68,9 +40,21 @@ pub fn slide(parts: &mut HashMap<Pos3D, Cube>, size: Size3D, target: Pos3D, d: D
     }
 }
 
+pub fn adjacents(center: Pos3D, size: Size3D) -> SmallVec<[Direction; 4]> {
+    let mut results = smallvec![];
+    Direction::iter().for_each(|d| {
+        if let Some(pos) = move_one(center, size, d) {
+            if pos.on_face(size) {
+                results.push(d);
+            }
+        }
+    });
+    results
+}
+
 #[cfg(test)]
 mod test {
-    use crate::model::geenrate_surfaces;
+    use crate::model::generate_surfaces;
 
     use super::*;
 
@@ -131,7 +115,7 @@ mod test {
     #[test]
     fn slides() {
         let size = Size3D::new(3, 4, 5);
-        let mut parts: HashMap<Pos3D, Cube> = geenrate_surfaces(size)
+        let mut parts: HashMap<Pos3D, Cube> = generate_surfaces(size)
             .into_iter()
             .map(|pos| (pos, Cube::new(pos)))
             .collect();
@@ -180,7 +164,7 @@ mod test {
     #[test]
     fn slides_two_holes() {
         let size = Size3D::new(3, 4, 5);
-        let mut parts: HashMap<Pos3D, Cube> = geenrate_surfaces(size)
+        let mut parts: HashMap<Pos3D, Cube> = generate_surfaces(size)
             .into_iter()
             .map(|pos| (pos, Cube::new(pos)))
             .collect();
@@ -225,5 +209,151 @@ mod test {
         assert!(!slide(&mut parts, size, pos101, Direction::YPosi));
         assert!(!slide(&mut parts, size, pos101, Direction::ZNega));
         assert!(!slide(&mut parts, size, pos101, Direction::ZPosi));
+    }
+
+    #[test]
+    fn invert_direction() {
+        let size = Size3D::new(3, 3, 3);
+
+        let check = |center, ds: SmallVec<[Direction; 4]>| {
+            let ads = adjacents(center, size);
+            println!("{:?}", ads);
+            assert_eq!(ds.len(), ads.len());
+            for d in ds {
+                assert!(ads.contains(&d));
+                let next = move_one(center, size, d).unwrap();
+                assert_eq!(center, move_one(next, size, d.invert()).unwrap());
+            }
+        };
+
+        check(
+            Pos3D::new(1, 0, 1),
+            smallvec![
+                Direction::XNega,
+                Direction::XPosi,
+                Direction::ZNega,
+                Direction::ZPosi
+            ],
+        );
+
+        check(
+            Pos3D::new(1, 1, 0),
+            smallvec![
+                Direction::XNega,
+                Direction::XPosi,
+                Direction::YNega,
+                Direction::YPosi
+            ],
+        );
+
+        check(
+            Pos3D::new(0, 1, 1),
+            smallvec![
+                Direction::ZNega,
+                Direction::ZPosi,
+                Direction::YNega,
+                Direction::YPosi
+            ],
+        );
+
+        check(
+            Pos3D::new(0, 0, 0),
+            smallvec![Direction::XPosi, Direction::YPosi, Direction::ZPosi],
+        );
+
+        check(
+            Pos3D::new(2, 0, 0),
+            smallvec![Direction::XNega, Direction::YPosi, Direction::ZPosi],
+        );
+
+        check(
+            Pos3D::new(0, 2, 0),
+            smallvec![Direction::XPosi, Direction::YNega, Direction::ZPosi],
+        );
+
+        check(
+            Pos3D::new(0, 0, 2),
+            smallvec![Direction::XPosi, Direction::YPosi, Direction::ZNega],
+        );
+
+        check(
+            Pos3D::new(2, 2, 2),
+            smallvec![Direction::XNega, Direction::YNega, Direction::ZNega],
+        );
+
+        check(
+            Pos3D::new(0, 2, 2),
+            smallvec![Direction::XPosi, Direction::YNega, Direction::ZNega],
+        );
+
+        check(
+            Pos3D::new(2, 0, 2),
+            smallvec![Direction::XNega, Direction::YPosi, Direction::ZNega],
+        );
+
+        check(
+            Pos3D::new(2, 2, 0),
+            smallvec![Direction::XNega, Direction::YNega, Direction::ZPosi],
+        );
+
+        check(
+            Pos3D::new(1, 0, 0),
+            smallvec![
+                Direction::YPosi,
+                Direction::ZPosi,
+                Direction::XNega,
+                Direction::XPosi
+            ],
+        );
+
+        check(
+            Pos3D::new(0, 1, 0),
+            smallvec![
+                Direction::XPosi,
+                Direction::ZPosi,
+                Direction::YNega,
+                Direction::YPosi
+            ],
+        );
+
+        check(
+            Pos3D::new(0, 0, 1),
+            smallvec![
+                Direction::XPosi,
+                Direction::YPosi,
+                Direction::ZNega,
+                Direction::ZPosi
+            ],
+        );
+
+        check(
+            Pos3D::new(1, 2, 2),
+            smallvec![
+                Direction::ZNega,
+                Direction::YNega,
+                Direction::XNega,
+                Direction::XPosi
+            ],
+        );
+
+        check(
+            Pos3D::new(2, 1, 2),
+            smallvec![
+                Direction::ZNega,
+                Direction::XNega,
+                Direction::YNega,
+                Direction::YPosi
+            ],
+        );
+
+        check(
+            Pos3D::new(2, 2, 1),
+            smallvec![
+                Direction::XNega,
+                Direction::YNega,
+                Direction::ZNega,
+                Direction::ZPosi
+            ],
+        );
     }
 }

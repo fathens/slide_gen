@@ -71,7 +71,7 @@ fn generate_cubes(
             mesh: meshes.add(Mesh::from(shape::Cube {
                 size: resource.cube_size * 0.8,
             })),
-            material: materials.add(Color::rgb(0.8, 0.7, 0.6).into()),
+            material: materials.add(Color::rgba(0.1, 0.4, 0.6, 0.1).into()),
             transform: Transform::from_translation(tr),
             ..Default::default()
         });

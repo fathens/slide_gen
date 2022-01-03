@@ -1,23 +1,26 @@
 [env]
 ENV_DIR = {source="${CARGO_MAKE_PROFILE}", default_value = "debug", mapping = {production = "release"}}
 CARGO_TARGET_DIR = {value = "target", condition = {env_not_set = ["CARGO_TARGET_DIR"]}}
-CARGO_WASM_PATH = "${CARGO_TARGET_DIR}/wasm32-unknown-unknown/${ENV_DIR}/${CARGO_MAKE_CRATE_NAME}.wasm"
-WASM_ROOT_DIR=".assets"
+CARGO_WASM_PATH = "${CARGO_TARGET_DIR}/wasm32-unknown-unknown/${ENV_DIR}/viewer.wasm"
+WASM_ROOT_DIR="viewer/.assets"
 
 [env.production]
 CARGO_RELEASE_ARGS = "--release"
 
+[config]
+default_to_workspace = false
+
 [tasks.serve]
 command = "basic-http-server"
 args = ["-x", "-a", "0.0.0.0:4000", "${WASM_ROOT_DIR}"]
-dependencies = ["build-wasm", "basic-http-server"]
+dependencies = ["bind-wasm", "basic-http-server"]
 
-[tasks.build-wasm]
+[tasks.bind-wasm]
 command = "./bin/wasm-bindgen"
 args = ["--out-dir", "${WASM_ROOT_DIR}", "--out-name", "wasm", "--target", "web", "--no-typescript", "${CARGO_WASM_PATH}"]
-dependencies = ["cargo-build", "wasm-bindgen-cli"]
+dependencies = ["build", "wasm-bindgen-cli"]
 
-[tasks.cargo-build]
+[tasks.build]
 command = "cargo"
 args = ["build", "@@split(CARGO_RELEASE_ARGS, )"]
 dependencies = ["target-wasm32"]

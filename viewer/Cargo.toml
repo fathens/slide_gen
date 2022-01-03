@@ -3,8 +3,12 @@ name = "viewer"
 version = "0.1.0"
 edition = "2021"
 
-[lib]
-crate-type = ["cdylib"]
-
 [dependencies]
-bevy = "0.5"
+tracing-wasm = "=0.2.0"
+
+bevy_webgl2 = "0.5"
+bevy = { version = "0.5", default-features = false, features = ["bevy_gltf", "bevy_winit", "render", "png"] }
+
+[profile.release]
+lto = true
+opt-level = 's'

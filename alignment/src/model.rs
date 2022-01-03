@@ -1,6 +1,7 @@
 use derive_new::new;
 use getset::*;
-use std::hash::Hash;
+use smallvec::{smallvec, SmallVec};
+use std::{hash::Hash, vec};
 use strum_macros::EnumIter;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, new, CopyGetters)]
@@ -48,13 +49,33 @@ pub struct Pos3D {
 
 impl Pos3D {
     pub fn on_face(self, size: Size3D) -> bool {
-        let is_face = self.x == 0
-            || self.y == 0
-            || self.z == 0
-            || self.x == size.x - 1
-            || self.y == size.y - 1
-            || self.z == size.z - 1;
-        is_face && self.x < size.x && self.y < size.y && self.z < size.z
+        !self.get_faces(size).is_empty()
+    }
+
+    pub fn get_faces(self, size: Size3D) -> SmallVec<[Direction; 3]> {
+        let mut results = smallvec![];
+        if size.x <= self.x || size.y <= self.y || size.z <= self.z {
+            return results;
+        }
+        if self.x == 0 {
+            results.push(Direction::XNega)
+        }
+        if self.y == 0 {
+            results.push(Direction::YNega)
+        }
+        if self.z == 0 {
+            results.push(Direction::ZNega)
+        }
+        if self.x == size.x - 1 {
+            results.push(Direction::XPosi)
+        }
+        if self.y == size.y - 1 {
+            results.push(Direction::YPosi)
+        }
+        if self.z == size.z - 1 {
+            results.push(Direction::ZPosi)
+        }
+        return results;
     }
 
     pub fn distance(self, other: Pos3D) -> f32 {

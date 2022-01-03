@@ -28,7 +28,9 @@ impl FromWorld for CubesResource {
     }
 }
 
-fn setup(mut commands: Commands) {
+fn setup(mut commands: Commands, mut windows: ResMut<Windows>) {
+    let window = windows.get_primary_mut().unwrap();
+    window.set_resolution(800.0, 800.0);
     // light
     commands.spawn_bundle(LightBundle {
         transform: Transform::from_translation(Vec3::new(4.0, 8.0, 4.0)),

@@ -1,23 +1,26 @@
 use crate::resources::CubesResource;
-use alignment::model::{generate_surfaces, Pos3D};
+use alignment::{
+    model,
+    model::{generate_surfaces, Pos3D},
+};
 use bevy::prelude::*;
 
-pub struct CubeId(Pos3D);
-
-impl CubeId {
-    pub fn from(pos: Pos3D) -> CubeId {
-        // let mut hasher = DefaultHasher::new();
-        // pos.hash(&mut hasher);
-        // let hash = hasher.finish();
-        CubeId(pos)
-    }
+pub struct CubeId {
+    home: Pos3D,
 }
 
 #[derive(Bundle)]
-pub struct CubePart {
-    home: Pos3D,
+pub struct CubeBody {
+    pos: Pos3D,
     #[bundle]
     body: PbrBundle,
+}
+
+#[derive(Bundle)]
+pub struct CubeFace {
+    direction: model::Direction,
+    #[bundle]
+    face: PbrBundle,
 }
 
 pub fn generate_cubes(
@@ -31,24 +34,51 @@ pub fn generate_cubes(
         resource.cube_size * v
     };
 
-    generate_surfaces(resource.spaces).into_iter().for_each(|pos| {
-        let tr = Vec3::new(
-            calc_pos(pos.x(), resource.spaces.x()),
-            calc_pos(pos.y(), resource.spaces.y()),
-            calc_pos(pos.z(), resource.spaces.z()),
-        );
-        let body = PbrBundle {
-            mesh: meshes.add(Mesh::from(shape::Cube {
-                size: resource.cube_size * 0.9,
-            })),
-            material: materials.add(Color::rgba(0.0, 0.6, 1.0, 0.5).into()),
-            transform: Transform::from_translation(tr),
-            ..Default::default()
-        };
+    generate_surfaces(resource.spaces)
+        .into_iter()
+        .for_each(|pos| {
+            let tr = Vec3::new(
+                calc_pos(pos.x(), resource.spaces.x()),
+                calc_pos(pos.y(), resource.spaces.y()),
+                calc_pos(pos.z(), resource.spaces.z()),
+            );
+            let body = PbrBundle {
+                mesh: meshes.add(Mesh::from(shape::Cube {
+                    size: resource.cube_size * 0.9,
+                })),
+                material: materials.add(Color::rgba(0.0, 0.6, 1.0, 0.5).into()),
+                transform: Transform::from_translation(tr),
+                ..Default::default()
+            };
 
-        commands
-            .spawn()
-            .insert(CubeId::from(pos))
-            .insert_bundle(CubePart { home: pos, body });
-    });
+            let face_size = resource.cube_size * 0.94;
+            let face_half = face_size / 2.0;
+
+            let mut entity = commands.spawn();
+            entity.insert(CubeId { home: pos });
+            pos.get_faces(resource.spaces)
+                .into_iter()
+                .for_each(|direction| {
+                    let tr = match direction {
+                        _ => Transform {
+                            translation: tr + Vec3::new(-face_half, 0.0, 0.0),
+                            rotation: Quat::from_rotation_z(90_f32.to_radians()),
+                            ..Default::default()
+                        },
+                        // model::Direction::XPosi =>Transform {
+                        //     translation: Vec3::new(half, 0.0, 0.0),
+                        //     rotation: Quat::from_rotation_z(-90_f32.to_radians()),
+                        //     ..Default::default()
+                        // }
+                    };
+                    let face = PbrBundle {
+                        mesh: meshes.add(Mesh::from(shape::Plane { size: face_size })),
+                        material: materials.add(Color::rgb(1.0, 0.6, 0.0).into()),
+                        transform: tr,
+                        ..Default::default()
+                    };
+                    entity.insert_bundle(CubeFace { direction, face });
+                });
+            entity.insert_bundle(CubeBody { pos, body });
+        });
 }

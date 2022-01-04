@@ -2,26 +2,26 @@ use smallvec::*;
 use std::collections::HashMap;
 use strum::IntoEnumIterator;
 
-use crate::model::{Cube, Direction, Pos3D, Size3D};
+use crate::model::{Cube, Direction3D, Pos3D, Size3D};
 
-pub fn move_one(pos: Pos3D, size: Size3D, d: Direction) -> Option<Pos3D> {
+pub fn move_one(pos: Pos3D, size: Size3D, d: Direction3D) -> Option<Pos3D> {
     match d {
-        Direction::XNega => (pos.x() > 0).then(|| Pos3D::new(pos.x() - 1, pos.y(), pos.z())),
-        Direction::XPosi => {
+        Direction3D::XNega => (pos.x() > 0).then(|| Pos3D::new(pos.x() - 1, pos.y(), pos.z())),
+        Direction3D::XPosi => {
             (pos.x() < size.x() - 1).then(|| Pos3D::new(pos.x() + 1, pos.y(), pos.z()))
         }
-        Direction::YNega => (pos.y() > 0).then(|| Pos3D::new(pos.x(), pos.y() - 1, pos.z())),
-        Direction::YPosi => {
+        Direction3D::YNega => (pos.y() > 0).then(|| Pos3D::new(pos.x(), pos.y() - 1, pos.z())),
+        Direction3D::YPosi => {
             (pos.y() < size.y() - 1).then(|| Pos3D::new(pos.x(), pos.y() + 1, pos.z()))
         }
-        Direction::ZNega => (pos.z() > 0).then(|| Pos3D::new(pos.x(), pos.y(), pos.z() - 1)),
-        Direction::ZPosi => {
+        Direction3D::ZNega => (pos.z() > 0).then(|| Pos3D::new(pos.x(), pos.y(), pos.z() - 1)),
+        Direction3D::ZPosi => {
             (pos.z() < size.z() - 1).then(|| Pos3D::new(pos.x(), pos.y(), pos.z() + 1))
         }
     }
 }
 
-pub fn slide(parts: &mut HashMap<Pos3D, Cube>, size: Size3D, src: Pos3D, d: Direction) -> bool {
+pub fn slide(parts: &mut HashMap<Pos3D, Cube>, size: Size3D, src: Pos3D, d: Direction3D) -> bool {
     match move_one(src, size, d) {
         None => false,
         Some(next_pos) => {
@@ -40,9 +40,9 @@ pub fn slide(parts: &mut HashMap<Pos3D, Cube>, size: Size3D, src: Pos3D, d: Dire
     }
 }
 
-pub fn adjacents(center: Pos3D, size: Size3D) -> SmallVec<[Direction; 4]> {
+pub fn adjacents(center: Pos3D, size: Size3D) -> SmallVec<[Direction3D; 4]> {
     let mut results = smallvec![];
-    Direction::iter().for_each(|d| {
+    Direction3D::iter().for_each(|d| {
         if let Some(pos) = move_one(center, size, d) {
             if pos.on_face(size) {
                 results.push(d);
@@ -61,53 +61,53 @@ mod test {
     #[test]
     fn pos_move_one() {
         assert_eq!(
-            move_one(Pos3D::new(0, 4, 6), Size3D::new(3, 5, 7), Direction::XNega),
+            move_one(Pos3D::new(0, 4, 6), Size3D::new(3, 5, 7), Direction3D::XNega),
             None
         );
         assert_eq!(
-            move_one(Pos3D::new(2, 4, 6), Size3D::new(3, 5, 7), Direction::XNega),
+            move_one(Pos3D::new(2, 4, 6), Size3D::new(3, 5, 7), Direction3D::XNega),
             Some(Pos3D::new(1, 4, 6))
         );
         assert_eq!(
-            move_one(Pos3D::new(2, 4, 6), Size3D::new(3, 5, 7), Direction::XPosi),
+            move_one(Pos3D::new(2, 4, 6), Size3D::new(3, 5, 7), Direction3D::XPosi),
             None
         );
         assert_eq!(
-            move_one(Pos3D::new(1, 4, 6), Size3D::new(3, 5, 7), Direction::XPosi),
+            move_one(Pos3D::new(1, 4, 6), Size3D::new(3, 5, 7), Direction3D::XPosi),
             Some(Pos3D::new(2, 4, 6))
         );
 
         assert_eq!(
-            move_one(Pos3D::new(2, 0, 6), Size3D::new(3, 5, 7), Direction::YNega),
+            move_one(Pos3D::new(2, 0, 6), Size3D::new(3, 5, 7), Direction3D::YNega),
             None
         );
         assert_eq!(
-            move_one(Pos3D::new(2, 4, 6), Size3D::new(3, 5, 7), Direction::YNega),
+            move_one(Pos3D::new(2, 4, 6), Size3D::new(3, 5, 7), Direction3D::YNega),
             Some(Pos3D::new(2, 3, 6))
         );
         assert_eq!(
-            move_one(Pos3D::new(2, 4, 6), Size3D::new(3, 5, 7), Direction::YPosi),
+            move_one(Pos3D::new(2, 4, 6), Size3D::new(3, 5, 7), Direction3D::YPosi),
             None
         );
         assert_eq!(
-            move_one(Pos3D::new(2, 3, 6), Size3D::new(3, 5, 7), Direction::YPosi),
+            move_one(Pos3D::new(2, 3, 6), Size3D::new(3, 5, 7), Direction3D::YPosi),
             Some(Pos3D::new(2, 4, 6))
         );
 
         assert_eq!(
-            move_one(Pos3D::new(2, 4, 0), Size3D::new(3, 5, 7), Direction::ZNega),
+            move_one(Pos3D::new(2, 4, 0), Size3D::new(3, 5, 7), Direction3D::ZNega),
             None
         );
         assert_eq!(
-            move_one(Pos3D::new(2, 4, 6), Size3D::new(3, 5, 7), Direction::ZNega),
+            move_one(Pos3D::new(2, 4, 6), Size3D::new(3, 5, 7), Direction3D::ZNega),
             Some(Pos3D::new(2, 4, 5))
         );
         assert_eq!(
-            move_one(Pos3D::new(2, 4, 6), Size3D::new(3, 5, 7), Direction::ZPosi),
+            move_one(Pos3D::new(2, 4, 6), Size3D::new(3, 5, 7), Direction3D::ZPosi),
             None
         );
         assert_eq!(
-            move_one(Pos3D::new(2, 4, 5), Size3D::new(3, 5, 7), Direction::ZPosi),
+            move_one(Pos3D::new(2, 4, 5), Size3D::new(3, 5, 7), Direction3D::ZPosi),
             Some(Pos3D::new(2, 4, 6))
         );
     }
@@ -125,40 +125,40 @@ mod test {
 
         let pos224 = Pos3D::new(2, 2, 4);
         let cube224 = *parts.get(&pos224).unwrap();
-        assert!(!slide(&mut parts, size, pos224, Direction::XNega));
-        assert!(!slide(&mut parts, size, pos224, Direction::XPosi));
-        assert!(!slide(&mut parts, size, pos224, Direction::ZNega));
-        assert!(!slide(&mut parts, size, pos224, Direction::ZPosi));
-        assert!(slide(&mut parts, size, pos224, Direction::YPosi));
-        assert!(!slide(&mut parts, size, pos224, Direction::YNega));
+        assert!(!slide(&mut parts, size, pos224, Direction3D::XNega));
+        assert!(!slide(&mut parts, size, pos224, Direction3D::XPosi));
+        assert!(!slide(&mut parts, size, pos224, Direction3D::ZNega));
+        assert!(!slide(&mut parts, size, pos224, Direction3D::ZPosi));
+        assert!(slide(&mut parts, size, pos224, Direction3D::YPosi));
+        assert!(!slide(&mut parts, size, pos224, Direction3D::YNega));
         assert_eq!(*parts.get(&pos234).unwrap(), cube224);
 
         let pos223 = Pos3D::new(2, 2, 3);
         let cube223 = *parts.get(&pos223).unwrap();
-        assert!(!slide(&mut parts, size, pos223, Direction::XNega));
-        assert!(!slide(&mut parts, size, pos223, Direction::XPosi));
-        assert!(!slide(&mut parts, size, pos223, Direction::YNega));
-        assert!(!slide(&mut parts, size, pos223, Direction::YPosi));
-        assert!(!slide(&mut parts, size, pos223, Direction::ZNega));
-        assert!(slide(&mut parts, size, pos223, Direction::ZPosi));
+        assert!(!slide(&mut parts, size, pos223, Direction3D::XNega));
+        assert!(!slide(&mut parts, size, pos223, Direction3D::XPosi));
+        assert!(!slide(&mut parts, size, pos223, Direction3D::YNega));
+        assert!(!slide(&mut parts, size, pos223, Direction3D::YPosi));
+        assert!(!slide(&mut parts, size, pos223, Direction3D::ZNega));
+        assert!(slide(&mut parts, size, pos223, Direction3D::ZPosi));
         assert_eq!(*parts.get(&pos224).unwrap(), cube223);
 
         assert_eq!(parts.get(&pos223), None);
-        assert!(!slide(&mut parts, size, pos223, Direction::XNega));
-        assert!(!slide(&mut parts, size, pos223, Direction::XPosi));
-        assert!(!slide(&mut parts, size, pos223, Direction::YNega));
-        assert!(!slide(&mut parts, size, pos223, Direction::YPosi));
-        assert!(!slide(&mut parts, size, pos223, Direction::ZNega));
-        assert!(!slide(&mut parts, size, pos223, Direction::ZPosi));
+        assert!(!slide(&mut parts, size, pos223, Direction3D::XNega));
+        assert!(!slide(&mut parts, size, pos223, Direction3D::XPosi));
+        assert!(!slide(&mut parts, size, pos223, Direction3D::YNega));
+        assert!(!slide(&mut parts, size, pos223, Direction3D::YPosi));
+        assert!(!slide(&mut parts, size, pos223, Direction3D::ZNega));
+        assert!(!slide(&mut parts, size, pos223, Direction3D::ZPosi));
 
         let pos323 = Pos3D::new(3, 2, 3);
         assert_eq!(parts.get(&pos323), None);
-        assert!(!slide(&mut parts, size, pos323, Direction::XNega));
-        assert!(!slide(&mut parts, size, pos323, Direction::XPosi));
-        assert!(!slide(&mut parts, size, pos323, Direction::YNega));
-        assert!(!slide(&mut parts, size, pos323, Direction::YPosi));
-        assert!(!slide(&mut parts, size, pos323, Direction::ZNega));
-        assert!(!slide(&mut parts, size, pos323, Direction::ZPosi));
+        assert!(!slide(&mut parts, size, pos323, Direction3D::XNega));
+        assert!(!slide(&mut parts, size, pos323, Direction3D::XPosi));
+        assert!(!slide(&mut parts, size, pos323, Direction3D::YNega));
+        assert!(!slide(&mut parts, size, pos323, Direction3D::YPosi));
+        assert!(!slide(&mut parts, size, pos323, Direction3D::ZNega));
+        assert!(!slide(&mut parts, size, pos323, Direction3D::ZPosi));
     }
 
     #[test]
@@ -176,46 +176,46 @@ mod test {
 
         let pos100 = Pos3D::new(1, 0, 0);
         let cube100 = *parts.get(&pos100).unwrap();
-        assert!(slide(&mut parts, size, pos100, Direction::XNega));
-        assert!(!slide(&mut parts, size, pos100, Direction::XPosi));
-        assert!(!slide(&mut parts, size, pos100, Direction::ZNega));
-        assert!(!slide(&mut parts, size, pos100, Direction::ZPosi));
-        assert!(!slide(&mut parts, size, pos100, Direction::YPosi));
-        assert!(!slide(&mut parts, size, pos100, Direction::YNega));
+        assert!(slide(&mut parts, size, pos100, Direction3D::XNega));
+        assert!(!slide(&mut parts, size, pos100, Direction3D::XPosi));
+        assert!(!slide(&mut parts, size, pos100, Direction3D::ZNega));
+        assert!(!slide(&mut parts, size, pos100, Direction3D::ZPosi));
+        assert!(!slide(&mut parts, size, pos100, Direction3D::YPosi));
+        assert!(!slide(&mut parts, size, pos100, Direction3D::YNega));
         assert_eq!(*parts.get(&pos000).unwrap(), cube100);
 
         let pos101 = Pos3D::new(1, 0, 1);
         let cube101 = *parts.get(&pos101).unwrap();
-        assert!(slide(&mut parts, size, pos101, Direction::ZNega));
-        assert!(!slide(&mut parts, size, pos101, Direction::ZPosi));
-        assert!(!slide(&mut parts, size, pos101, Direction::XNega));
-        assert!(!slide(&mut parts, size, pos101, Direction::XPosi));
-        assert!(!slide(&mut parts, size, pos101, Direction::YNega));
-        assert!(!slide(&mut parts, size, pos101, Direction::YPosi));
+        assert!(slide(&mut parts, size, pos101, Direction3D::ZNega));
+        assert!(!slide(&mut parts, size, pos101, Direction3D::ZPosi));
+        assert!(!slide(&mut parts, size, pos101, Direction3D::XNega));
+        assert!(!slide(&mut parts, size, pos101, Direction3D::XPosi));
+        assert!(!slide(&mut parts, size, pos101, Direction3D::YNega));
+        assert!(!slide(&mut parts, size, pos101, Direction3D::YPosi));
         assert_eq!(*parts.get(&pos100).unwrap(), cube101);
 
         assert_eq!(parts.get(&pos001), None);
-        assert!(!slide(&mut parts, size, pos001, Direction::XNega));
-        assert!(!slide(&mut parts, size, pos001, Direction::XPosi));
-        assert!(!slide(&mut parts, size, pos001, Direction::YNega));
-        assert!(!slide(&mut parts, size, pos001, Direction::YPosi));
-        assert!(!slide(&mut parts, size, pos001, Direction::ZNega));
-        assert!(!slide(&mut parts, size, pos001, Direction::ZPosi));
+        assert!(!slide(&mut parts, size, pos001, Direction3D::XNega));
+        assert!(!slide(&mut parts, size, pos001, Direction3D::XPosi));
+        assert!(!slide(&mut parts, size, pos001, Direction3D::YNega));
+        assert!(!slide(&mut parts, size, pos001, Direction3D::YPosi));
+        assert!(!slide(&mut parts, size, pos001, Direction3D::ZNega));
+        assert!(!slide(&mut parts, size, pos001, Direction3D::ZPosi));
 
         assert_eq!(parts.get(&pos101), None);
-        assert!(!slide(&mut parts, size, pos101, Direction::XNega));
-        assert!(!slide(&mut parts, size, pos101, Direction::XPosi));
-        assert!(!slide(&mut parts, size, pos101, Direction::YNega));
-        assert!(!slide(&mut parts, size, pos101, Direction::YPosi));
-        assert!(!slide(&mut parts, size, pos101, Direction::ZNega));
-        assert!(!slide(&mut parts, size, pos101, Direction::ZPosi));
+        assert!(!slide(&mut parts, size, pos101, Direction3D::XNega));
+        assert!(!slide(&mut parts, size, pos101, Direction3D::XPosi));
+        assert!(!slide(&mut parts, size, pos101, Direction3D::YNega));
+        assert!(!slide(&mut parts, size, pos101, Direction3D::YPosi));
+        assert!(!slide(&mut parts, size, pos101, Direction3D::ZNega));
+        assert!(!slide(&mut parts, size, pos101, Direction3D::ZPosi));
     }
 
     #[test]
     fn invert_direction() {
         let size = Size3D::new(3, 3, 3);
 
-        let check = |center, ds: SmallVec<[Direction; 4]>| {
+        let check = |center, ds: SmallVec<[Direction3D; 4]>| {
             let ads = adjacents(center, size);
             println!("{:?}", ads);
             assert_eq!(ds.len(), ads.len());
@@ -229,130 +229,130 @@ mod test {
         check(
             Pos3D::new(1, 0, 1),
             smallvec![
-                Direction::XNega,
-                Direction::XPosi,
-                Direction::ZNega,
-                Direction::ZPosi
+                Direction3D::XNega,
+                Direction3D::XPosi,
+                Direction3D::ZNega,
+                Direction3D::ZPosi
             ],
         );
 
         check(
             Pos3D::new(1, 1, 0),
             smallvec![
-                Direction::XNega,
-                Direction::XPosi,
-                Direction::YNega,
-                Direction::YPosi
+                Direction3D::XNega,
+                Direction3D::XPosi,
+                Direction3D::YNega,
+                Direction3D::YPosi
             ],
         );
 
         check(
             Pos3D::new(0, 1, 1),
             smallvec![
-                Direction::ZNega,
-                Direction::ZPosi,
-                Direction::YNega,
-                Direction::YPosi
+                Direction3D::ZNega,
+                Direction3D::ZPosi,
+                Direction3D::YNega,
+                Direction3D::YPosi
             ],
         );
 
         check(
             Pos3D::new(0, 0, 0),
-            smallvec![Direction::XPosi, Direction::YPosi, Direction::ZPosi],
+            smallvec![Direction3D::XPosi, Direction3D::YPosi, Direction3D::ZPosi],
         );
 
         check(
             Pos3D::new(2, 0, 0),
-            smallvec![Direction::XNega, Direction::YPosi, Direction::ZPosi],
+            smallvec![Direction3D::XNega, Direction3D::YPosi, Direction3D::ZPosi],
         );
 
         check(
             Pos3D::new(0, 2, 0),
-            smallvec![Direction::XPosi, Direction::YNega, Direction::ZPosi],
+            smallvec![Direction3D::XPosi, Direction3D::YNega, Direction3D::ZPosi],
         );
 
         check(
             Pos3D::new(0, 0, 2),
-            smallvec![Direction::XPosi, Direction::YPosi, Direction::ZNega],
+            smallvec![Direction3D::XPosi, Direction3D::YPosi, Direction3D::ZNega],
         );
 
         check(
             Pos3D::new(2, 2, 2),
-            smallvec![Direction::XNega, Direction::YNega, Direction::ZNega],
+            smallvec![Direction3D::XNega, Direction3D::YNega, Direction3D::ZNega],
         );
 
         check(
             Pos3D::new(0, 2, 2),
-            smallvec![Direction::XPosi, Direction::YNega, Direction::ZNega],
+            smallvec![Direction3D::XPosi, Direction3D::YNega, Direction3D::ZNega],
         );
 
         check(
             Pos3D::new(2, 0, 2),
-            smallvec![Direction::XNega, Direction::YPosi, Direction::ZNega],
+            smallvec![Direction3D::XNega, Direction3D::YPosi, Direction3D::ZNega],
         );
 
         check(
             Pos3D::new(2, 2, 0),
-            smallvec![Direction::XNega, Direction::YNega, Direction::ZPosi],
+            smallvec![Direction3D::XNega, Direction3D::YNega, Direction3D::ZPosi],
         );
 
         check(
             Pos3D::new(1, 0, 0),
             smallvec![
-                Direction::YPosi,
-                Direction::ZPosi,
-                Direction::XNega,
-                Direction::XPosi
+                Direction3D::YPosi,
+                Direction3D::ZPosi,
+                Direction3D::XNega,
+                Direction3D::XPosi
             ],
         );
 
         check(
             Pos3D::new(0, 1, 0),
             smallvec![
-                Direction::XPosi,
-                Direction::ZPosi,
-                Direction::YNega,
-                Direction::YPosi
+                Direction3D::XPosi,
+                Direction3D::ZPosi,
+                Direction3D::YNega,
+                Direction3D::YPosi
             ],
         );
 
         check(
             Pos3D::new(0, 0, 1),
             smallvec![
-                Direction::XPosi,
-                Direction::YPosi,
-                Direction::ZNega,
-                Direction::ZPosi
+                Direction3D::XPosi,
+                Direction3D::YPosi,
+                Direction3D::ZNega,
+                Direction3D::ZPosi
             ],
         );
 
         check(
             Pos3D::new(1, 2, 2),
             smallvec![
-                Direction::ZNega,
-                Direction::YNega,
-                Direction::XNega,
-                Direction::XPosi
+                Direction3D::ZNega,
+                Direction3D::YNega,
+                Direction3D::XNega,
+                Direction3D::XPosi
             ],
         );
 
         check(
             Pos3D::new(2, 1, 2),
             smallvec![
-                Direction::ZNega,
-                Direction::XNega,
-                Direction::YNega,
-                Direction::YPosi
+                Direction3D::ZNega,
+                Direction3D::XNega,
+                Direction3D::YNega,
+                Direction3D::YPosi
             ],
         );
 
         check(
             Pos3D::new(2, 2, 1),
             smallvec![
-                Direction::XNega,
-                Direction::YNega,
-                Direction::ZNega,
-                Direction::ZPosi
+                Direction3D::XNega,
+                Direction3D::YNega,
+                Direction3D::ZNega,
+                Direction3D::ZPosi
             ],
         );
     }

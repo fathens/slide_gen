@@ -15,7 +15,7 @@ pub struct Size3D {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, EnumIter)]
-pub enum Direction {
+pub enum Direction3D {
     XNega,
     XPosi,
     YNega,
@@ -24,15 +24,15 @@ pub enum Direction {
     ZPosi,
 }
 
-impl Direction {
+impl Direction3D {
     pub fn invert(self) -> Self {
         match self {
-            Direction::XNega => Direction::XPosi,
-            Direction::XPosi => Direction::XNega,
-            Direction::YNega => Direction::YPosi,
-            Direction::YPosi => Direction::YNega,
-            Direction::ZNega => Direction::ZPosi,
-            Direction::ZPosi => Direction::ZNega,
+            Direction3D::XNega => Direction3D::XPosi,
+            Direction3D::XPosi => Direction3D::XNega,
+            Direction3D::YNega => Direction3D::YPosi,
+            Direction3D::YPosi => Direction3D::YNega,
+            Direction3D::ZNega => Direction3D::ZPosi,
+            Direction3D::ZPosi => Direction3D::ZNega,
         }
     }
 }
@@ -52,28 +52,28 @@ impl Pos3D {
         !self.get_faces(size).is_empty()
     }
 
-    pub fn get_faces(self, size: Size3D) -> SmallVec<[Direction; 3]> {
+    pub fn get_faces(self, size: Size3D) -> SmallVec<[Direction3D; 3]> {
         let mut results = smallvec![];
         if size.x <= self.x || size.y <= self.y || size.z <= self.z {
             return results;
         }
         if self.x == 0 {
-            results.push(Direction::XNega)
+            results.push(Direction3D::XNega)
         }
         if self.y == 0 {
-            results.push(Direction::YNega)
+            results.push(Direction3D::YNega)
         }
         if self.z == 0 {
-            results.push(Direction::ZNega)
+            results.push(Direction3D::ZNega)
         }
         if self.x == size.x - 1 {
-            results.push(Direction::XPosi)
+            results.push(Direction3D::XPosi)
         }
         if self.y == size.y - 1 {
-            results.push(Direction::YPosi)
+            results.push(Direction3D::YPosi)
         }
         if self.z == size.z - 1 {
-            results.push(Direction::ZPosi)
+            results.push(Direction3D::ZPosi)
         }
         return results;
     }

@@ -8,9 +8,9 @@ pub fn run() {
     app.add_plugins(DefaultPlugins);
     app.add_plugin(bevy_webgl2::WebGL2Plugin);
 
-    app.add_startup_system(setup.system());
     app.init_resource::<CubesResource>();
-    app.add_system(generate_cubes.system());
+    app.add_startup_system(setup.system());
+    app.add_startup_system(generate_cubes.system());
 
     app.run();
 }

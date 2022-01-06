@@ -1,5 +1,6 @@
 use crate::put_cubes::*;
 use crate::resources::*;
+use crate::rotate::*;
 use bevy::prelude::*;
 
 pub fn run() {
@@ -11,6 +12,8 @@ pub fn run() {
     app.init_resource::<CubesResource>();
     app.add_startup_system(setup.system());
     app.add_startup_system(generate_cubes.system());
+    app.add_system(spawn_camera.system());
+    app.add_system(pan_orbit_camera.system());
 
     app.run();
 }
@@ -25,12 +28,6 @@ fn setup(mut commands: Commands, mut windows: ResMut<Windows>) {
     });
     commands.spawn_bundle(LightBundle {
         transform: Transform::from_translation(Vec3::new(-10.0, -20.0, -10.0)),
-        ..Default::default()
-    });
-    // camera
-    commands.spawn_bundle(PerspectiveCameraBundle {
-        transform: Transform::from_translation(Vec3::new(-8.0, 8.0, 10.0))
-            .looking_at(Vec3::default(), Vec3::Y),
         ..Default::default()
     });
 }

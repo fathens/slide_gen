@@ -61,53 +61,101 @@ mod test {
     #[test]
     fn pos_move_one() {
         assert_eq!(
-            move_one(Pos3D::new(0, 4, 6), Size3D::new(3, 5, 7), Direction3D::XNega),
+            move_one(
+                Pos3D::new(0, 4, 6),
+                Size3D::new(3, 5, 7),
+                Direction3D::XNega
+            ),
             None
         );
         assert_eq!(
-            move_one(Pos3D::new(2, 4, 6), Size3D::new(3, 5, 7), Direction3D::XNega),
+            move_one(
+                Pos3D::new(2, 4, 6),
+                Size3D::new(3, 5, 7),
+                Direction3D::XNega
+            ),
             Some(Pos3D::new(1, 4, 6))
         );
         assert_eq!(
-            move_one(Pos3D::new(2, 4, 6), Size3D::new(3, 5, 7), Direction3D::XPosi),
+            move_one(
+                Pos3D::new(2, 4, 6),
+                Size3D::new(3, 5, 7),
+                Direction3D::XPosi
+            ),
             None
         );
         assert_eq!(
-            move_one(Pos3D::new(1, 4, 6), Size3D::new(3, 5, 7), Direction3D::XPosi),
+            move_one(
+                Pos3D::new(1, 4, 6),
+                Size3D::new(3, 5, 7),
+                Direction3D::XPosi
+            ),
             Some(Pos3D::new(2, 4, 6))
         );
 
         assert_eq!(
-            move_one(Pos3D::new(2, 0, 6), Size3D::new(3, 5, 7), Direction3D::YNega),
+            move_one(
+                Pos3D::new(2, 0, 6),
+                Size3D::new(3, 5, 7),
+                Direction3D::YNega
+            ),
             None
         );
         assert_eq!(
-            move_one(Pos3D::new(2, 4, 6), Size3D::new(3, 5, 7), Direction3D::YNega),
+            move_one(
+                Pos3D::new(2, 4, 6),
+                Size3D::new(3, 5, 7),
+                Direction3D::YNega
+            ),
             Some(Pos3D::new(2, 3, 6))
         );
         assert_eq!(
-            move_one(Pos3D::new(2, 4, 6), Size3D::new(3, 5, 7), Direction3D::YPosi),
+            move_one(
+                Pos3D::new(2, 4, 6),
+                Size3D::new(3, 5, 7),
+                Direction3D::YPosi
+            ),
             None
         );
         assert_eq!(
-            move_one(Pos3D::new(2, 3, 6), Size3D::new(3, 5, 7), Direction3D::YPosi),
+            move_one(
+                Pos3D::new(2, 3, 6),
+                Size3D::new(3, 5, 7),
+                Direction3D::YPosi
+            ),
             Some(Pos3D::new(2, 4, 6))
         );
 
         assert_eq!(
-            move_one(Pos3D::new(2, 4, 0), Size3D::new(3, 5, 7), Direction3D::ZNega),
+            move_one(
+                Pos3D::new(2, 4, 0),
+                Size3D::new(3, 5, 7),
+                Direction3D::ZNega
+            ),
             None
         );
         assert_eq!(
-            move_one(Pos3D::new(2, 4, 6), Size3D::new(3, 5, 7), Direction3D::ZNega),
+            move_one(
+                Pos3D::new(2, 4, 6),
+                Size3D::new(3, 5, 7),
+                Direction3D::ZNega
+            ),
             Some(Pos3D::new(2, 4, 5))
         );
         assert_eq!(
-            move_one(Pos3D::new(2, 4, 6), Size3D::new(3, 5, 7), Direction3D::ZPosi),
+            move_one(
+                Pos3D::new(2, 4, 6),
+                Size3D::new(3, 5, 7),
+                Direction3D::ZPosi
+            ),
             None
         );
         assert_eq!(
-            move_one(Pos3D::new(2, 4, 5), Size3D::new(3, 5, 7), Direction3D::ZPosi),
+            move_one(
+                Pos3D::new(2, 4, 5),
+                Size3D::new(3, 5, 7),
+                Direction3D::ZPosi
+            ),
             Some(Pos3D::new(2, 4, 6))
         );
     }

@@ -1,6 +1,6 @@
 mod put_cubes;
 mod resources;
-mod setup;
 mod rotate;
+mod setup;
 
 pub use setup::run;

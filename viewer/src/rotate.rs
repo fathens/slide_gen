@@ -21,6 +21,50 @@ impl Default for PanOrbitCamera {
     }
 }
 
+pub fn swipe_screen(
+    windows: Res<Windows>,
+    touches: Res<Touches>,
+    mut query: Query<(&mut PanOrbitCamera, &mut Transform, &PerspectiveProjection)>,
+) {
+    let window = get_primary_window_size(&windows);
+    let center = window / 2.0;
+
+    let mut rotation_move = Vec2::ZERO;
+
+    for finger in touches.iter() {
+        if touches.just_pressed(finger.id()) {
+            info!("A new touch with ID {} just began.", finger.id());
+        }
+        info!(
+            "Finger {} is at position ({},{}), started from ({},{}).",
+            finger.id(),
+            finger.position().x,
+            finger.position().y,
+            finger.start_position().x,
+            finger.start_position().y,
+        );
+
+        let diff = finger.position() - center;
+        rotation_move += diff;
+    }
+
+    for (mut pan_orbit, mut transform, projection) in query.iter_mut() {
+        let delta_x = {
+            let delta = rotation_move.x / window.x * std::f32::consts::PI * 2.0;
+            if pan_orbit.upside_down {
+                -delta
+            } else {
+                delta
+            }
+        };
+        let delta_y = rotation_move.y / window.y * std::f32::consts::PI;
+        let yaw = Quat::from_rotation_y(-delta_x);
+        let pitch = Quat::from_rotation_x(-delta_y);
+        transform.rotation = yaw * transform.rotation; // rotate around global y axis
+        transform.rotation = transform.rotation * pitch; // rotate around local x axis
+    }
+}
+
 /// Pan the camera with middle mouse click, zoom with scroll wheel, orbit with right mouse click.
 pub fn pan_orbit_camera(
     windows: Res<Windows>,
@@ -31,7 +75,7 @@ pub fn pan_orbit_camera(
 ) {
     // change input mapping for orbit and panning here
     let orbit_button = MouseButton::Right;
-    let pan_button = MouseButton::Middle;
+    let pan_button = MouseButton::Left;
 
     let mut pan = Vec2::ZERO;
     let mut rotation_move = Vec2::ZERO;
@@ -111,8 +155,7 @@ pub fn pan_orbit_camera(
 
 fn get_primary_window_size(windows: &Res<Windows>) -> Vec2 {
     let window = windows.get_primary().unwrap();
-    let window = Vec2::new(window.width() as f32, window.height() as f32);
-    window
+    Vec2::new(window.width() as f32, window.height() as f32)
 }
 
 /// Spawn a camera like this

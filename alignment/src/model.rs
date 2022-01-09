@@ -75,7 +75,7 @@ impl Pos3D {
         if self.z == size.z - 1 {
             results.push(Direction3D::ZPosi)
         }
-        return results;
+        results
     }
 
     pub fn distance(self, other: Pos3D) -> f32 {

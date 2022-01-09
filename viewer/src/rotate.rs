@@ -3,6 +3,7 @@ use bevy::prelude::*;
 use bevy::render::camera::PerspectiveProjection;
 
 /// Tags an entity as capable of panning and orbiting.
+#[derive(Component)]
 pub struct PanOrbitCamera {
     /// The "focus point" to orbit around. It is automatically updated when panning the camera
     pub focus: Vec3,

@@ -2,13 +2,13 @@ use crate::resources::CubesResource;
 use alignment::model::*;
 use bevy::prelude::*;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Component)]
 pub struct CubeHome(Pos3D);
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Component)]
 pub struct CubePos(Pos3D);
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Component)]
 pub struct CubeFace(Direction3D);
 
 pub fn generate_cubes(

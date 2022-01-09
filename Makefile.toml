@@ -31,7 +31,7 @@ args = ["target", "install", "wasm32-unknown-unknown"]
 
 [tasks.wasm-bindgen-cli]
 command = "cargo"
-args = ["local-install", "wasm-bindgen-cli", "--version", "0.2.69", "--locked"]
+args = ["local-install", "wasm-bindgen-cli", "--locked"]
 dependencies = ["cargo-local-install"]
 
 [tasks.cargo-local-install]

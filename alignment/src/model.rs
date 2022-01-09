@@ -25,6 +25,7 @@ pub enum Direction3D {
 }
 
 impl Direction3D {
+    #[must_use]
     pub fn invert(self) -> Self {
         match self {
             Direction3D::XNega => Direction3D::XPosi,

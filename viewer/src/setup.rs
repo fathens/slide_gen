@@ -13,7 +13,6 @@ pub fn run() {
     app.add_startup_system(generate_cubes);
     app.add_system(spawn_camera);
     app.add_system(pan_orbit_camera);
-    app.add_system(swipe_screen);
 
     app.run();
 }

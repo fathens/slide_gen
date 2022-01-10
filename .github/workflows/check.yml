@@ -10,6 +10,7 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: nightly
+          target: wasm32-unknown-unknown
           override: true
           default: true
           components: rustfmt, clippy
@@ -34,7 +35,8 @@ jobs:
       - name: Report test coverage
         uses: actions-rs/tarpaulin@v0.1
         with:
-          args: --out Lcov
+          args: --target x86_64-unknown-linux-gnu
+          out-type: Lcov
 
       - name: Upload to Coveralls
         uses: coverallsapp/github-action@master

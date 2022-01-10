@@ -11,7 +11,8 @@ pub fn run() {
     app.init_resource::<CubesResource>();
     app.add_startup_system(setup);
     app.add_startup_system(generate_cubes);
-    app.add_system(spawn_camera);
+    app.add_startup_system(spawn_camera);
+
     app.add_system(pan_orbit_camera);
 
     app.run();

@@ -4,28 +4,21 @@ use alignment::model::*;
 use bevy::prelude::*;
 use shuffle::rand_hole;
 
-pub fn generate_cubes(
+pub fn setup(
     resource: ResMut<CubesResource>,
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-    let calc_pos = |p: u8, s: u8| {
-        let v = (p as f32) - (s as f32) / 2.0;
-        resource.cube_size * v
-    };
-
     let hole = rand_hole(resource.spaces);
     let cubes = generate_surfaces(resource.spaces)
         .into_iter()
         .filter(|home| *home != hole);
 
+    commands.spawn().insert(CubeHole(hole));
+
     cubes.into_iter().for_each(|home| {
-        let center = Vec3::new(
-            calc_pos(home.x(), resource.spaces.x()),
-            calc_pos(home.y(), resource.spaces.y()),
-            calc_pos(home.z(), resource.spaces.z()),
-        );
+        let center = resource.calc_center(home);
 
         /* TODO Add a transparent cube body */
         commands

@@ -22,7 +22,7 @@ impl Default for PanOrbitCamera {
 }
 
 /// Pan the camera with middle mouse click, zoom with scroll wheel, orbit with right mouse click.
-pub fn pan_orbit_camera(
+pub fn action(
     windows: Res<Windows>,
     mut ev_motion: EventReader<MouseMotion>,
     mut ev_scroll: EventReader<MouseWheel>,
@@ -97,7 +97,7 @@ fn get_primary_window_size(windows: &Res<Windows>) -> Vec2 {
 }
 
 /// Spawn a camera like this
-pub fn spawn_camera(mut commands: Commands) {
+pub fn setup(mut commands: Commands) {
     let translation = Vec3::new(-2.0, 2.5, 5.0);
     let radius = translation.length();
 

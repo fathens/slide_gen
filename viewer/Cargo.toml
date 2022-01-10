@@ -7,6 +7,8 @@ edition = "2021"
 alignment = { path = "../alignment" }
 shuffle = { path = "../shuffle" }
 
+rand = "~0.8"
+
 [dependencies.bevy]
 version = "0.6"
 default-features = false

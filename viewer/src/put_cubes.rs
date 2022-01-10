@@ -59,7 +59,7 @@ pub fn generate_cubes(
                             ..Default::default()
                         },
                         Direction3D::XPosi => Transform {
-                            translation: Vec3::new(face_half, 0.0, 0.0),
+                            translation: center + Vec3::new(face_half, 0.0, 0.0),
                             rotation: Quat::from_rotation_z(-90_f32.to_radians()),
                             ..Default::default()
                         },

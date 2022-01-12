@@ -2359,6 +2359,7 @@ dependencies = [
  "bevy",
  "rand",
  "shuffle",
+ "smallvec",
 ]
 
 [[package]]

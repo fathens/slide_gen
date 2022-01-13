@@ -1,3 +1,5 @@
+mod components;
+mod move_cubes;
 mod put_cubes;
 mod resources;
 mod rotate;

@@ -38,7 +38,7 @@ impl Direction3D {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, new, CopyGetters)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default, new, CopyGetters)]
 pub struct Pos3D {
     #[getset(get_copy = "pub")]
     x: u8,

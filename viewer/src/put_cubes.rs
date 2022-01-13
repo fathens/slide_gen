@@ -2,11 +2,13 @@ use crate::components::*;
 use crate::resources::CubesResource;
 use alignment::model::*;
 use bevy::prelude::*;
+use bevy::render::render_resource::{Extent3d, TextureDimension, TextureFormat};
 use shuffle::rand_hole;
 
 pub fn setup(
     resource: ResMut<CubesResource>,
     mut commands: Commands,
+    mut images: ResMut<Assets<Image>>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
@@ -14,6 +16,9 @@ pub fn setup(
     let cubes = generate_surfaces(resource.spaces)
         .into_iter()
         .filter(|home| *home != hole);
+
+    let face_size = resource.cube_size * 0.94;
+    let face_half = 1.01 * face_size / 2.0;
 
     commands.spawn().insert(CubeHole(hole));
 
@@ -34,9 +39,6 @@ pub fn setup(
                 transform: Transform::from_translation(center),
                 ..Default::default()
             });
-
-        let face_size = resource.cube_size * 0.94;
-        let face_half = 1.01 * face_size / 2.0;
 
         home.get_faces(resource.spaces)
             .into_iter()
@@ -73,6 +75,34 @@ pub fn setup(
                     },
                 };
 
+                let image_width = 100;
+                let image_height = 100;
+
+                // TODO draw image
+                let mut image_data = Vec::with_capacity(image_width * image_height * 4);
+                for x in 0..image_width {
+                    for y in 0..image_height {
+                        let r = (x as f32 / image_width as f32) * 255.0;
+                        let g = (y as f32 / image_height as f32) * 255.0;
+                        let b = (r + g) / 2.0;
+                        image_data.push(r as u8);
+                        image_data.push(g as u8);
+                        image_data.push(b as u8);
+                        image_data.push(255);
+                    }
+                }
+
+                let image = Image::new(
+                    Extent3d {
+                        width: image_width as u32,
+                        height: image_height as u32,
+                        ..Default::default()
+                    },
+                    TextureDimension::D2,
+                    image_data,
+                    TextureFormat::Rgba8Unorm,
+                );
+
                 commands
                     .spawn()
                     .insert(CubeHome(home))
@@ -80,7 +110,7 @@ pub fn setup(
                     .insert(CubeFace(direction))
                     .insert_bundle(PbrBundle {
                         mesh: meshes.add(Mesh::from(shape::Plane { size: face_size })),
-                        material: materials.add(Color::rgb(1.0, 0.5, 0.0).into()),
+                        material: materials.add(images.add(image).into()),
                         transform: tr,
                         ..Default::default()
                     });

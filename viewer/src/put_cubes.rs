@@ -20,7 +20,8 @@ pub fn setup(
     cubes.into_iter().for_each(|home| {
         let center = resource.calc_center(home);
 
-        /* TODO Add a transparent cube body */
+        let mut mate: StandardMaterial = Color::rgba(0.0, 0.9, 0.7, 0.8).into();
+        mate.alpha_mode = AlphaMode::Blend;
         commands
             .spawn()
             .insert(CubeHome(home))
@@ -29,7 +30,7 @@ pub fn setup(
                 mesh: meshes.add(Mesh::from(shape::Cube {
                     size: resource.cube_size * 0.9,
                 })),
-                material: materials.add(Color::rgb(0.0, 0.9, 0.7).into()),
+                material: materials.add(mate),
                 transform: Transform::from_translation(center),
                 ..Default::default()
             });

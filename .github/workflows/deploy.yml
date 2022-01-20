@@ -1,0 +1,17 @@
+name: Deploy to Github pages
+on:
+  workflow_dispatch:
+
+jobs:
+  setup:
+    - uses: actions/checkout@v2
+
+    - uses: actions-rs/toolchain@v1
+      with:
+        target: wasm32-unknown-unknown
+        components: cargo-make
+
+    - uses: Swatinem/rust-cache@v1
+
+    - name: Build wasm
+      run: makers --profile production bind-wasm

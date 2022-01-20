@@ -26,3 +26,12 @@ jobs:
     steps:
       - name: Build wasm
         run: makers --profile production bind-wasm
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Sample
+        run: echo ${ENV}
+        env:
+          ENV: ${{ github.event.inputs.env }}

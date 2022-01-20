@@ -4,14 +4,16 @@ on:
 
 jobs:
   setup:
-    - uses: actions/checkout@v2
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
 
-    - uses: actions-rs/toolchain@v1
-      with:
-        target: wasm32-unknown-unknown
-        components: cargo-make
+      - uses: actions-rs/toolchain@v1
+        with:
+          target: wasm32-unknown-unknown
+          components: cargo-make
 
-    - uses: Swatinem/rust-cache@v1
+      - uses: Swatinem/rust-cache@v1
 
-    - name: Build wasm
-      run: makers --profile production bind-wasm
+      - name: Build wasm
+        run: makers --profile production bind-wasm

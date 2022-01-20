@@ -1,0 +1,28 @@
+name: Deploy to Github pages
+on:
+  workflow_dispatch:
+    inputs:
+      env:
+        description: Environment to deploy
+        default: sand
+        required: true
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          target: wasm32-unknown-unknown
+          components: cargo-make
+
+      - uses: Swatinem/rust-cache@v1
+
+  build:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build wasm
+        run: makers --profile production bind-wasm

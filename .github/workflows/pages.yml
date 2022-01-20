@@ -15,7 +15,10 @@ jobs:
 
       - uses: actions-rs/toolchain@v1
         with:
+          toolchain: nightly
           target: wasm32-unknown-unknown
+          override: true
+          default: true
           components: cargo-make
 
       - uses: Swatinem/rust-cache@v1

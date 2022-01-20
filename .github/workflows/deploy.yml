@@ -1,6 +1,5 @@
 name: Deploy to Github pages
-on:
-  workflow_dispatch:
+on: workflow_dispatch
 
 jobs:
   setup:
@@ -15,5 +14,8 @@ jobs:
 
       - uses: Swatinem/rust-cache@v1
 
+  build:
+    runs-on: ubuntu-latest
+    steps:
       - name: Build wasm
         run: makers --profile production bind-wasm

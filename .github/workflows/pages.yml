@@ -32,7 +32,9 @@ jobs:
           args: --profile production build
 
       - name: Check built wasm
-        run: ls -la target/wasm32-unknown-unknown/release/
+        run: |
+          ls -la target/wasm32-unknown-unknown/release/
+          ls -la viewer/.assets/
 
       - name: Build wasm
         uses: actions-rs/cargo@v1

@@ -30,7 +30,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Build wasm
-        run: makers --profile production bind-wasm
+        uses: actions-rs/cargo@v1
+        with:
+          command: make
+          args: --profile production bind-wasm
 
   deploy:
     needs: build

@@ -23,14 +23,8 @@ jobs:
       - uses: Swatinem/rust-cache@v1
 
       - name: Install cargo-make
-        run: |
-          type cargo
-          cargo install --force cargo-make
+        run: cargo install cargo-make
 
-  build:
-    needs: setup
-    runs-on: ubuntu-latest
-    steps:
       - name: Build wasm
         uses: actions-rs/cargo@v1
         with:
@@ -38,7 +32,7 @@ jobs:
           args: --profile production bind-wasm
 
   deploy:
-    needs: build
+    needs: setup
     runs-on: ubuntu-latest
     steps:
       - name: Sample

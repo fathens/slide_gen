@@ -25,6 +25,15 @@ jobs:
       - name: Install cargo-make
         run: cargo install cargo-make
 
+      - name: Just Build
+        uses: actions-rs/cargo@v1
+        with:
+          command: make
+          args: --profile production build
+
+      - name: Check built wasm
+        run: ls -la target/wasm32-unknown-unknown/release/
+
       - name: Build wasm
         uses: actions-rs/cargo@v1
         with:

@@ -19,9 +19,11 @@ jobs:
           target: wasm32-unknown-unknown
           override: true
           default: true
-          components: cargo-make
 
       - uses: Swatinem/rust-cache@v1
+
+      - name: Install cargo-make
+        run: cargo install cargo-make
 
   build:
     needs: setup

@@ -2,7 +2,7 @@
 ENV_DIR = {source="${CARGO_MAKE_PROFILE}", default_value = "debug", mapping = {production = "release"}}
 CARGO_TARGET_DIR = {value = "target", condition = {env_not_set = ["CARGO_TARGET_DIR"]}}
 CARGO_WASM_PATH = "${CARGO_TARGET_DIR}/wasm32-unknown-unknown/${ENV_DIR}/viewer.wasm"
-WASM_ROOT_DIR="viewer/.assets"
+WASM_ROOT_DIR="docs"
 
 [env.production]
 CARGO_RELEASE_ARGS = "--release"

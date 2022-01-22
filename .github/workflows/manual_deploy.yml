@@ -1,11 +1,6 @@
 name: Manual Deploy
 on:
   workflow_dispatch:
-    inputs:
-      env:
-        description: Environment to deploy
-        default: sand
-        required: true
 
 jobs:
   setup:

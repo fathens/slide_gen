@@ -36,6 +36,8 @@ jobs:
     steps:
       - uses: actions/download-artifact@v2
 
+      - uses: actions/checkout@v2
+
       - name: Push artifacts
         run: |
           ls -la docs/

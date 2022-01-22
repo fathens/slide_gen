@@ -25,10 +25,6 @@ jobs:
           command: make
           args: --profile production bind-wasm
 
-  deploy:
-    needs: setup
-    runs-on: ubuntu-latest
-    steps:
-      - name: Sample
+      - name: Check artifacts
         run: |
           ls -la docs/

@@ -48,6 +48,6 @@ jobs:
           git commit -m 'Add WASM and JS'
           ch=$(git rev-parse --verify HEAD)
           git fetch
-          git checkout -t gh-pages
+          git checkout -t origin/gh-pages
           git reset --hard $ch
           git push -f

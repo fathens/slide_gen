@@ -1,10 +1,10 @@
 use derive_new::new;
 use getset::*;
-use smallvec::{smallvec, SmallVec};
 use std::{hash::Hash, vec};
 use strum_macros::EnumIter;
+use tinyvec::*;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, new, CopyGetters)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default, new, CopyGetters)]
 pub struct Size3D {
     #[getset(get_copy = "pub")]
     x: u8,
@@ -22,6 +22,12 @@ pub enum Direction3D {
     YPosi,
     ZNega,
     ZPosi,
+}
+
+impl Default for Direction3D {
+    fn default() -> Self {
+        Direction3D::XNega
+    }
 }
 
 impl Direction3D {
@@ -53,8 +59,8 @@ impl Pos3D {
         !self.get_faces(size).is_empty()
     }
 
-    pub fn get_faces(self, size: Size3D) -> SmallVec<[Direction3D; 3]> {
-        let mut results = smallvec![];
+    pub fn get_faces(self, size: Size3D) -> ArrayVec<[Direction3D; 3]> {
+        let mut results = array_vec!([Direction3D; 3]);
         if size.x <= self.x || size.y <= self.y || size.z <= self.z {
             return results;
         }

@@ -7,7 +7,7 @@ edition = "2021"
 alignment = { path = "../alignment" }
 shuffle = { path = "../shuffle" }
 
-smallvec = "~1.7"
+tinyvec = "~1.5"
 rand = "~0.8"
 
 [dependencies.bevy]

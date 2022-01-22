@@ -4,7 +4,7 @@ use alignment::model::*;
 use alignment::slide::*;
 use bevy::prelude::*;
 use rand::prelude::*;
-use smallvec::SmallVec;
+use tinyvec::ArrayVec;
 
 #[derive(Debug, Clone, Component)]
 pub struct ShuffleTickTimer(pub Timer);
@@ -105,7 +105,7 @@ pub fn action(
 fn shuffle_one(size: Size3D, hole: Pos3D, prev_direction: Direction3D) -> (Pos3D, Direction3D) {
     let mut rng = rand::thread_rng();
 
-    let ds: SmallVec<[Direction3D; 3]> = adjacents(hole, size)
+    let ds: ArrayVec<[Direction3D; 3]> = adjacents(hole, size)
         .into_iter()
         .filter(|d| *d != prev_direction)
         .collect();

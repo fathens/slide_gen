@@ -41,6 +41,8 @@ jobs:
       - name: Push artifacts
         run: |
           ls -la docs/
+          git config --global user.name 'Manual Deploy'
+          git config --global user.email ''
           git status
           git add -f docs/*
           git commit -m 'Add WASM and JS'

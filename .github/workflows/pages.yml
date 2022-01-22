@@ -31,5 +31,4 @@ jobs:
     steps:
       - name: Sample
         run: |
-          ls -la target/wasm32-unknown-unknown/release/
           ls -la docs/

@@ -2,7 +2,7 @@ name: Manual Deploy
 on: workflow_dispatch
 
 jobs:
-  setup:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -25,6 +25,25 @@ jobs:
           command: make
           args: --profile production bind-wasm
 
-      - name: Check artifacts
+      - uses: actions/upload-artifact@v2
+        with:
+          name: docs
+          path: docs
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v2
+
+      - name: Push artifacts
         run: |
           ls -la docs/
+          git status
+          git add -f docs/*
+          git commit -m 'Add WASM and JS'
+          ch=$(git rev-parse --verify HEAD)
+          git fetch
+          git checkout -t gh-pages
+          git reset --hard $ch
+          git push -f

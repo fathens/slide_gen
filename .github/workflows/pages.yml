@@ -7,14 +7,14 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - uses: Swatinem/rust-cache@v1
+
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: nightly
           target: wasm32-unknown-unknown
           override: true
           default: true
-
-      - uses: Swatinem/rust-cache@v1
 
       - name: Install cargo-make
         run: cargo install cargo-make

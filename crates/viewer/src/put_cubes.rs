@@ -29,38 +29,37 @@ pub fn setup(
         let mut mate: StandardMaterial = Color::rgba(1.0, 1.0, 1.0, 0.4).into();
         mate.alpha_mode = AlphaMode::Blend;
         commands
-            .spawn()
-            .insert(CubeHome(home))
-            .insert(CubePos(home))
-            .insert_bundle(PbrBundle {
+            .spawn_bundle(PbrBundle {
                 mesh: meshes.add(Mesh::from(shape::Cube { size: body_size })),
                 material: materials.add(mate),
                 transform: Transform::from_translation(center),
                 ..Default::default()
-            });
+            })
+            .insert(CubeHome(home))
+            .insert(CubePos(home))
+            .with_children(|parent| {
+                home.get_faces(resource.spaces)
+                    .into_iter()
+                    .for_each(|direction| {
+                        [true, false].into_iter().for_each(|reversed| {
+                            let mut tr = mk_transform(direction, reversed);
+                            tr.translation *= face_half;
+                            // tr.translation += center;
 
-        home.get_faces(resource.spaces)
-            .into_iter()
-            .for_each(|direction| {
-                [true, false].into_iter().for_each(|reversed| {
-                    let mut tr = mk_transform(direction, reversed);
-                    tr.translation *= face_half;
-                    tr.translation += center;
+                            let image = draw_image(100, resource.spaces, home, direction, reversed);
 
-                    let image = draw_image(100, resource.spaces, home, direction, reversed);
-
-                    commands
-                        .spawn()
-                        .insert(CubeHome(home))
-                        .insert(CubePos(home))
-                        .insert(CubeFace(direction))
-                        .insert_bundle(PbrBundle {
-                            mesh: meshes.add(shape::Plane { size: face_size }.into()),
-                            material: materials.add(images.add(image).into()),
-                            transform: tr,
-                            ..Default::default()
+                            parent
+                                .spawn_bundle(PbrBundle {
+                                    mesh: meshes.add(shape::Plane { size: face_size }.into()),
+                                    material: materials.add(images.add(image).into()),
+                                    transform: tr,
+                                    ..Default::default()
+                                })
+                                .insert(CubeHome(home))
+                                .insert(CubePos(home))
+                                .insert(CubeFace(direction));
                         });
-                });
+                    });
             });
     });
 }

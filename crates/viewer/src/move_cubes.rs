@@ -49,13 +49,6 @@ pub fn action(
         (&CubeHome, &mut CubePos, &mut Transform, &mut Handle<Mesh>),
         Without<CubeFace>,
     >,
-    mut query_faces: Query<(
-        &CubeHome,
-        &mut CubePos,
-        &CubeFace,
-        &mut Transform,
-        &mut Handle<Mesh>,
-    )>,
 ) {
     let mut my_timer = query_timer.single_mut();
     if my_timer.0.tick(time.delta()).just_finished() {
@@ -88,12 +81,6 @@ pub fn action(
         );
 
         for (home, mut pos, mut tr, _) in query_bodies.iter_mut() {
-            if home.0 == moving.home {
-                pos.0 = moving.next_pos;
-                tr.translation += delta;
-            }
-        }
-        for (home, mut pos, _, mut tr, _) in query_faces.iter_mut() {
             if home.0 == moving.home {
                 pos.0 = moving.next_pos;
                 tr.translation += delta;

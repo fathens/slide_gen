@@ -183,7 +183,7 @@ fn draw_image(
         }
     }
 
-    let image = Image::new(
+    Image::new(
         Extent3d {
             width: image_width as u32,
             height: image_height as u32,
@@ -192,7 +192,5 @@ fn draw_image(
         TextureDimension::D2,
         image_data,
         TextureFormat::Rgba8Unorm,
-    );
-
-    image
+    )
 }

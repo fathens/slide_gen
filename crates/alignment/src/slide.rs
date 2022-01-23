@@ -1,6 +1,6 @@
-use smallvec::*;
 use std::collections::HashMap;
 use strum::IntoEnumIterator;
+use tinyvec::*;
 
 use crate::model::{Cube, Direction3D, Pos3D, Size3D};
 
@@ -40,8 +40,8 @@ pub fn slide(parts: &mut HashMap<Pos3D, Cube>, size: Size3D, src: Pos3D, d: Dire
     }
 }
 
-pub fn adjacents(center: Pos3D, size: Size3D) -> SmallVec<[Direction3D; 4]> {
-    let mut results = smallvec![];
+pub fn adjacents(center: Pos3D, size: Size3D) -> ArrayVec<[Direction3D; 4]> {
+    let mut results = array_vec!([Direction3D; 4]);
     Direction3D::iter().for_each(|d| {
         if let Some(pos) = move_one(center, size, d) {
             if pos.on_face(size) {
@@ -263,7 +263,7 @@ mod test {
     fn invert_direction() {
         let size = Size3D::new(3, 3, 3);
 
-        let check = |center, ds: SmallVec<[Direction3D; 4]>| {
+        let check = |center, ds: ArrayVec<[Direction3D; 4]>| {
             let ads = adjacents(center, size);
             println!("{:?}", ads);
             assert_eq!(ds.len(), ads.len());
@@ -276,132 +276,140 @@ mod test {
 
         check(
             Pos3D::new(1, 0, 1),
-            smallvec![
+            array_vec!([Direction3D; 4] =>
                 Direction3D::XNega,
                 Direction3D::XPosi,
                 Direction3D::ZNega,
                 Direction3D::ZPosi
-            ],
+            ),
         );
 
         check(
             Pos3D::new(1, 1, 0),
-            smallvec![
+            array_vec!([Direction3D; 4] =>
                 Direction3D::XNega,
                 Direction3D::XPosi,
                 Direction3D::YNega,
                 Direction3D::YPosi
-            ],
+            ),
         );
 
         check(
             Pos3D::new(0, 1, 1),
-            smallvec![
+            array_vec!([Direction3D; 4] =>
                 Direction3D::ZNega,
                 Direction3D::ZPosi,
                 Direction3D::YNega,
                 Direction3D::YPosi
-            ],
+            ),
         );
 
         check(
             Pos3D::new(0, 0, 0),
-            smallvec![Direction3D::XPosi, Direction3D::YPosi, Direction3D::ZPosi],
+            array_vec!([Direction3D; 4] =>
+                Direction3D::XPosi, Direction3D::YPosi, Direction3D::ZPosi),
         );
 
         check(
             Pos3D::new(2, 0, 0),
-            smallvec![Direction3D::XNega, Direction3D::YPosi, Direction3D::ZPosi],
+            array_vec!([Direction3D; 4] =>
+                Direction3D::XNega, Direction3D::YPosi, Direction3D::ZPosi),
         );
 
         check(
             Pos3D::new(0, 2, 0),
-            smallvec![Direction3D::XPosi, Direction3D::YNega, Direction3D::ZPosi],
+            array_vec!([Direction3D; 4] =>
+                Direction3D::XPosi, Direction3D::YNega, Direction3D::ZPosi),
         );
 
         check(
             Pos3D::new(0, 0, 2),
-            smallvec![Direction3D::XPosi, Direction3D::YPosi, Direction3D::ZNega],
+            array_vec!([Direction3D; 4] =>
+                Direction3D::XPosi, Direction3D::YPosi, Direction3D::ZNega),
         );
 
         check(
             Pos3D::new(2, 2, 2),
-            smallvec![Direction3D::XNega, Direction3D::YNega, Direction3D::ZNega],
+            array_vec!([Direction3D; 4] =>
+                Direction3D::XNega, Direction3D::YNega, Direction3D::ZNega),
         );
 
         check(
             Pos3D::new(0, 2, 2),
-            smallvec![Direction3D::XPosi, Direction3D::YNega, Direction3D::ZNega],
+            array_vec!([Direction3D; 4] =>
+                Direction3D::XPosi, Direction3D::YNega, Direction3D::ZNega),
         );
 
         check(
             Pos3D::new(2, 0, 2),
-            smallvec![Direction3D::XNega, Direction3D::YPosi, Direction3D::ZNega],
+            array_vec!([Direction3D; 4] =>
+                Direction3D::XNega, Direction3D::YPosi, Direction3D::ZNega),
         );
 
         check(
             Pos3D::new(2, 2, 0),
-            smallvec![Direction3D::XNega, Direction3D::YNega, Direction3D::ZPosi],
+            array_vec!([Direction3D; 4] =>
+                Direction3D::XNega, Direction3D::YNega, Direction3D::ZPosi),
         );
 
         check(
             Pos3D::new(1, 0, 0),
-            smallvec![
+            array_vec!([Direction3D; 4] =>
                 Direction3D::YPosi,
                 Direction3D::ZPosi,
                 Direction3D::XNega,
                 Direction3D::XPosi
-            ],
+            ),
         );
 
         check(
             Pos3D::new(0, 1, 0),
-            smallvec![
+            array_vec!([Direction3D; 4] =>
                 Direction3D::XPosi,
                 Direction3D::ZPosi,
                 Direction3D::YNega,
                 Direction3D::YPosi
-            ],
+            ),
         );
 
         check(
             Pos3D::new(0, 0, 1),
-            smallvec![
+            array_vec!([Direction3D; 4] =>
                 Direction3D::XPosi,
                 Direction3D::YPosi,
                 Direction3D::ZNega,
                 Direction3D::ZPosi
-            ],
+            ),
         );
 
         check(
             Pos3D::new(1, 2, 2),
-            smallvec![
+            array_vec!([Direction3D; 4] =>
                 Direction3D::ZNega,
                 Direction3D::YNega,
                 Direction3D::XNega,
                 Direction3D::XPosi
-            ],
+            ),
         );
 
         check(
             Pos3D::new(2, 1, 2),
-            smallvec![
+            array_vec!([Direction3D; 4] =>
                 Direction3D::ZNega,
                 Direction3D::XNega,
                 Direction3D::YNega,
                 Direction3D::YPosi
-            ],
+            ),
         );
 
         check(
             Pos3D::new(2, 2, 1),
-            smallvec![
+            array_vec!([Direction3D; 4] =>
                 Direction3D::XNega,
                 Direction3D::YNega,
                 Direction3D::ZNega,
                 Direction3D::ZPosi
-            ],
+            ),
         );
     }
 }

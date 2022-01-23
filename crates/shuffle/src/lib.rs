@@ -5,13 +5,13 @@ use alignment::{
     slide::{adjacents, move_one, slide},
 };
 use rand::prelude::*;
-use smallvec::SmallVec;
+use tinyvec::*;
 
 pub fn rand_hole(size: Size3D) -> Pos3D {
     let mut rng = rand::thread_rng();
 
     let ai = rng.gen_range(0..3);
-    let ps: SmallVec<[u8; 3]> = [size.x(), size.y(), size.z()]
+    let ps: ArrayVec<[u8; 3]> = [size.x(), size.y(), size.z()]
         .into_iter()
         .enumerate()
         .map(|(i, v)| {

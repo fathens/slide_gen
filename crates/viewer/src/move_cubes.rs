@@ -92,7 +92,7 @@ pub fn action(
 fn shuffle_one(size: Size3D, hole: Pos3D, prev_direction: Direction3D) -> (Pos3D, Direction3D) {
     let mut rng = rand::thread_rng();
 
-    let ds: ArrayVec<[Direction3D; 3]> = adjacents(hole, size)
+    let ds: ArrayVec<[Direction3D; 4]> = adjacents(hole, size)
         .into_iter()
         .filter(|d| *d != prev_direction)
         .collect();

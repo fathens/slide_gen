@@ -58,7 +58,7 @@ pub fn action(
 
         if moving.step == 0 {
             let mut hole = query_hole.single_mut();
-            info!("Current hole: {:?}", hole);
+            debug!("Current hole: {:?}", hole);
             let (next_hole, d) = shuffle_one(resource.spaces, hole.0, moving.direction);
             moving.prev_pos = next_hole;
             moving.next_pos = hole.0;
@@ -75,7 +75,7 @@ pub fn action(
         let a = resource.calc_center(moving.prev_pos);
         let b = resource.calc_center(moving.next_pos);
         let delta = (b - a) / (MovingCube::FASE_STEPS as f32);
-        info!(
+        debug!(
             "Move delta: {:?} = {:?}({:?}) - {:?}({:?})",
             delta, b, moving.next_pos, a, moving.prev_pos
         );

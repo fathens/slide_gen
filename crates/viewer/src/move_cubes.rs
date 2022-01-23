@@ -45,10 +45,7 @@ pub fn action(
     time: Res<Time>,
     mut query_timer: Query<&mut ShuffleTickTimer>,
     mut query_hole: Query<&mut CubeHole>,
-    mut query_bodies: Query<
-        (&CubeHome, &mut CubePos, &mut Transform, &mut Handle<Mesh>),
-        Without<CubeFace>,
-    >,
+    mut query_bodies: Query<(&CubeHome, &mut CubePos, &mut Transform, &mut Handle<Mesh>)>,
 ) {
     let mut my_timer = query_timer.single_mut();
     if my_timer.0.tick(time.delta()).just_finished() {

@@ -53,8 +53,6 @@ pub fn setup(
                                     transform: tr,
                                     ..Default::default()
                                 })
-                                .insert(CubeHome(home))
-                                .insert(CubePos(home))
                                 .insert(CubeFace(direction));
                         });
                     });

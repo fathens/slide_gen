@@ -42,9 +42,7 @@ pub fn setup(
                     .into_iter()
                     .for_each(|direction| {
                         [true, false].into_iter().for_each(|reversed| {
-                            let mut tr = mk_transform(direction, reversed);
-                            tr.translation *= face_half;
-                            // tr.translation += center;
+                            let tr = mk_transform(direction, face_half, reversed);
 
                             let image = draw_image(100, resource.spaces, home, direction, reversed);
 
@@ -64,36 +62,36 @@ pub fn setup(
     });
 }
 
-fn mk_transform(direction: Direction3D, reversed: bool) -> Transform {
+fn mk_transform(direction: Direction3D, unit: f32, reversed: bool) -> Transform {
     let rev: f32 = if reversed { 180.0 } else { 0.0 };
     match direction {
         Direction3D::XNega => Transform {
-            translation: Vec3::new(-1.0, 0.0, 0.0),
+            translation: Vec3::new(-unit, 0.0, 0.0),
             rotation: Quat::from_rotation_z((rev + 90.0).to_radians()),
             ..Default::default()
         },
         Direction3D::XPosi => Transform {
-            translation: Vec3::new(1.0, 0.0, 0.0),
+            translation: Vec3::new(unit, 0.0, 0.0),
             rotation: Quat::from_rotation_z((rev - 90.0).to_radians()),
             ..Default::default()
         },
         Direction3D::YNega => Transform {
-            translation: Vec3::new(0.0, -1.0, 0.0),
+            translation: Vec3::new(0.0, -unit, 0.0),
             rotation: Quat::from_rotation_z((rev + 180.0).to_radians()),
             ..Default::default()
         },
         Direction3D::YPosi => Transform {
-            translation: Vec3::new(0.0, 1.0, 0.0),
+            translation: Vec3::new(0.0, unit, 0.0),
             rotation: Quat::from_rotation_z(rev.to_radians()),
             ..Default::default()
         },
         Direction3D::ZNega => Transform {
-            translation: Vec3::new(0.0, 0.0, -1.0),
+            translation: Vec3::new(0.0, 0.0, -unit),
             rotation: Quat::from_rotation_x((rev - 90.0).to_radians()),
             ..Default::default()
         },
         Direction3D::ZPosi => Transform {
-            translation: Vec3::new(0.0, 0.0, 1.0),
+            translation: Vec3::new(0.0, 0.0, unit),
             rotation: Quat::from_rotation_x((rev + 90.0).to_radians()),
             ..Default::default()
         },

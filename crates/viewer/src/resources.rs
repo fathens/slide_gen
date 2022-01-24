@@ -19,7 +19,7 @@ impl CubesResource {
     pub fn calc_center(&self, pos: Pos3D) -> Vec3 {
         let calc_pos = |p: u8, s: u8| {
             let v = (p as f32) - (s as f32) / 2.0;
-            self.cube_size * v
+            self.cube_size * v + self.cube_size / 2.0
         };
         Vec3::new(
             calc_pos(pos.x(), self.spaces.x()),

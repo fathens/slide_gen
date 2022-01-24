@@ -26,11 +26,11 @@ fn setup(mut commands: Commands, mut windows: ResMut<Windows>) {
     window.set_resolution(800.0, 800.0);
     // light
     commands.spawn_bundle(PointLightBundle {
-        transform: Transform::from_translation(Vec3::new(4.0, 8.0, 4.0)),
+        transform: Transform::from_translation(Vec3::new(0.0, 0.0, 0.0)),
         ..Default::default()
     });
     commands.spawn_bundle(PointLightBundle {
-        transform: Transform::from_translation(Vec3::new(-10.0, -20.0, -10.0)),
+        transform: Transform::from_translation(Vec3::new(3.0, 4.0, 3.0)),
         ..Default::default()
     });
 }

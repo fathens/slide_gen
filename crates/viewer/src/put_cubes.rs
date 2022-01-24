@@ -23,41 +23,48 @@ pub fn setup(
 
     commands.spawn().insert(CubeHole(hole));
 
-    cubes.into_iter().for_each(|home| {
-        let center = resource.calc_center(home);
+    commands
+        .spawn_bundle(PbrBundle {
+            visibility: Visibility { is_visible: false },
+            ..Default::default()
+        })
+        .insert(CubeRoot {})
+        .with_children(|root| {
+            cubes.into_iter().for_each(|home| {
+                let mut mate: StandardMaterial = Color::rgba(1.0, 1.0, 1.0, 0.4).into();
+                mate.alpha_mode = AlphaMode::Blend;
 
-        let mut mate: StandardMaterial = Color::rgba(1.0, 1.0, 1.0, 0.4).into();
-        mate.alpha_mode = AlphaMode::Blend;
-        commands
-            .spawn_bundle(PbrBundle {
-                mesh: meshes.add(Mesh::from(shape::Cube { size: body_size })),
-                material: materials.add(mate),
-                transform: Transform::from_translation(center),
-                ..Default::default()
-            })
-            .insert(CubeHome(home))
-            .insert(CubePos(home))
-            .with_children(|parent| {
-                home.get_faces(resource.spaces)
-                    .into_iter()
-                    .for_each(|direction| {
-                        [true, false].into_iter().for_each(|reversed| {
-                            let tr = mk_transform(direction, face_half, reversed);
+                root.spawn_bundle(PbrBundle {
+                    mesh: meshes.add(Mesh::from(shape::Cube { size: body_size })),
+                    material: materials.add(mate),
+                    transform: Transform::from_translation(resource.calc_center(home)),
+                    ..Default::default()
+                })
+                .insert(CubeHome(home))
+                .insert(CubePos(home))
+                .with_children(|parent| {
+                    home.get_faces(resource.spaces)
+                        .into_iter()
+                        .for_each(|direction| {
+                            [true, false].into_iter().for_each(|reversed| {
+                                let tr = mk_transform(direction, face_half, reversed);
 
-                            let image = draw_image(100, resource.spaces, home, direction, reversed);
+                                let image =
+                                    draw_image(100, resource.spaces, home, direction, reversed);
 
-                            parent
-                                .spawn_bundle(PbrBundle {
-                                    mesh: meshes.add(shape::Plane { size: face_size }.into()),
-                                    material: materials.add(images.add(image).into()),
-                                    transform: tr,
-                                    ..Default::default()
-                                })
-                                .insert(CubeFace(direction));
+                                parent
+                                    .spawn_bundle(PbrBundle {
+                                        mesh: meshes.add(shape::Plane { size: face_size }.into()),
+                                        material: materials.add(images.add(image).into()),
+                                        transform: tr,
+                                        ..Default::default()
+                                    })
+                                    .insert(CubeFace(direction));
+                            });
                         });
-                    });
+                });
             });
-    });
+        });
 }
 
 fn mk_transform(direction: Direction3D, unit: f32, reversed: bool) -> Transform {

@@ -1,6 +1,9 @@
 use alignment::model::*;
 use bevy::prelude::*;
 
+#[derive(Debug, Component)]
+pub struct CubeRoot;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Component)]
 pub struct CubeHome(pub Pos3D);
 

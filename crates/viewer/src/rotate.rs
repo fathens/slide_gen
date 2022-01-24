@@ -1,3 +1,4 @@
+use crate::components::*;
 use bevy::input::mouse::*;
 use bevy::prelude::*;
 use bevy::render::camera::PerspectiveProjection;
@@ -27,7 +28,8 @@ pub fn action(
     mut ev_motion: EventReader<MouseMotion>,
     mut ev_scroll: EventReader<MouseWheel>,
     input_mouse: Res<Input<MouseButton>>,
-    mut query: Query<(&mut PanOrbitCamera, &mut Transform, &PerspectiveProjection)>,
+    mut query_camera: Query<(&mut PanOrbitCamera, &mut Transform, &PerspectiveProjection), Without<CubeRoot>>,
+    mut query_root: Query<&mut Transform, With<CubeRoot>>,
 ) {
     // change input mapping for orbit and panning here
     let orbit_button = MouseButton::Left;
@@ -38,7 +40,7 @@ pub fn action(
 
     if input_mouse.pressed(orbit_button) {
         for ev in ev_motion.iter() {
-            rotation_move += ev.delta;
+            rotation_move -= ev.delta;
         }
     }
     for ev in ev_scroll.iter() {
@@ -48,7 +50,7 @@ pub fn action(
         orbit_button_changed = true;
     }
 
-    for (mut pan_orbit, mut transform, _) in query.iter_mut() {
+    for (mut pan_orbit, mut transform, _) in query_camera.iter_mut() {
         if orbit_button_changed {
             // only check for upside down when orbiting started or ended this frame
             // if the camera is "upside" down, panning horizontally would be inverted, so invert the input to make it correct
@@ -57,23 +59,7 @@ pub fn action(
         }
 
         let mut any = false;
-        if rotation_move.length_squared() > 0.0 {
-            any = true;
-            let window = get_primary_window_size(&windows);
-            let delta_x = {
-                let delta = rotation_move.x / window.x * std::f32::consts::PI * 2.0;
-                if pan_orbit.upside_down {
-                    -delta
-                } else {
-                    delta
-                }
-            };
-            let delta_y = rotation_move.y / window.y * std::f32::consts::PI;
-            let yaw = Quat::from_rotation_y(-delta_x);
-            let pitch = Quat::from_rotation_x(-delta_y);
-            transform.rotation = yaw * transform.rotation; // rotate around global y axis
-            transform.rotation *= pitch; // rotate around local x axis
-        } else if scroll.abs() > 0.0 {
+        if scroll.abs() > 0.0 {
             any = true;
             pan_orbit.radius -= scroll * pan_orbit.radius * 0.2;
             // dont allow zoom to reach zero or you get stuck
@@ -88,6 +74,17 @@ pub fn action(
             transform.translation =
                 pan_orbit.focus + rot_matrix.mul_vec3(Vec3::new(0.0, 0.0, pan_orbit.radius));
         }
+    }
+
+    if rotation_move.length_squared() > 0.0 {
+        let window = get_primary_window_size(&windows);
+        let delta_x = rotation_move.x / window.x * std::f32::consts::PI * 2.0;
+        let delta_y = rotation_move.y / window.y * std::f32::consts::PI;
+        let yaw = Quat::from_rotation_y(-delta_x);
+        let pitch = Quat::from_rotation_x(-delta_y);
+        let mut transform = query_root.single_mut();
+        transform.rotation = yaw * transform.rotation; // rotate around global y axis
+        transform.rotation *= pitch; // rotate around local x axis
     }
 }
 

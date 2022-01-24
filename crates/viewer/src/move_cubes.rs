@@ -45,7 +45,7 @@ pub fn action(
     time: Res<Time>,
     mut query_timer: Query<&mut ShuffleTickTimer>,
     mut query_hole: Query<&mut CubeHole>,
-    mut query_bodies: Query<(&CubeHome, &mut CubePos, &mut Transform, &mut Handle<Mesh>)>,
+    mut query_cubes: Query<(&CubeHome, &mut CubePos, &mut Transform, &mut Handle<Mesh>)>,
 ) {
     let mut my_timer = query_timer.single_mut();
     if my_timer.0.tick(time.delta()).just_finished() {
@@ -60,7 +60,7 @@ pub fn action(
             moving.prev_pos = next_hole;
             moving.next_pos = hole.0;
             moving.direction = d;
-            moving.home = query_bodies
+            moving.home = query_cubes
                 .iter()
                 .find(|(_, p, _, _)| p.0 == next_hole)
                 .map(|(h, _, _, _)| h.0)
@@ -77,7 +77,7 @@ pub fn action(
             delta, b, moving.next_pos, a, moving.prev_pos
         );
 
-        for (home, mut pos, mut tr, _) in query_bodies.iter_mut() {
+        for (home, mut pos, mut tr, _) in query_cubes.iter_mut() {
             if home.0 == moving.home {
                 pos.0 = moving.next_pos;
                 tr.translation += delta;

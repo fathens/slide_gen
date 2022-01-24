@@ -28,7 +28,7 @@ pub fn setup(
             visibility: Visibility { is_visible: false },
             ..Default::default()
         })
-        .insert(CubeRoot {})
+        .insert(CubeRoot)
         .with_children(|root| {
             cubes.into_iter().for_each(|home| {
                 let mut mate: StandardMaterial = Color::rgba(1.0, 1.0, 1.0, 0.4).into();

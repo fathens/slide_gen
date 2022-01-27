@@ -30,47 +30,36 @@ pub fn action(
     mut query_camera: Query<(&mut PanOrbitCamera, &mut Transform), Without<CubeRoot>>,
     mut query_root: Query<&mut Transform, With<CubeRoot>>,
 ) {
-    // change input mapping for orbit and panning here
     let orbit_button = MouseButton::Left;
-
-    let mut rotation_move = Vec2::ZERO;
-    let mut scroll = 0.0;
-    let mut orbit_button_changed = false;
-
-    if input_mouse.pressed(orbit_button) {
-        for ev in ev_motion.iter() {
-            rotation_move -= ev.delta;
-        }
-    }
-    for ev in ev_scroll.iter() {
-        scroll += ev.y / 100.0;
-    }
-    if input_mouse.just_released(orbit_button) || input_mouse.just_pressed(orbit_button) {
-        orbit_button_changed = true;
-    }
 
     let (mut pan_orbit, mut transform_camera) = query_camera.single_mut();
     let mut transform_cubes = query_root.single_mut();
 
-    if orbit_button_changed {
+    if input_mouse.just_released(orbit_button) || input_mouse.just_pressed(orbit_button) {
         let up = transform_cubes.rotation * Vec3::X;
         pan_orbit.upside_down = up.x <= 0.0;
     }
 
-    let mut any = false;
+    let mut scroll = 0.0;
+    for ev in ev_scroll.iter() {
+        scroll += ev.y / 100.0;
+    }
     if scroll.abs() > 0.0 {
-        any = true;
         pan_orbit.radius -= scroll * pan_orbit.radius * 0.2;
         // dont allow zoom to reach zero or you get stuck
         pan_orbit.radius = f32::max(pan_orbit.radius, 0.05);
-    }
 
-    if any {
         let rot_matrix = Mat3::from_quat(transform_camera.rotation);
         transform_camera.translation =
             pan_orbit.focus + rot_matrix.mul_vec3(Vec3::new(0.0, 0.0, pan_orbit.radius));
     }
 
+    let mut rotation_move = Vec2::ZERO;
+    if input_mouse.pressed(orbit_button) {
+        for ev in ev_motion.iter() {
+            rotation_move -= ev.delta;
+        }
+    }
     if rotation_move.length_squared() > 0.0 {
         let window = get_primary_window_size(&windows);
         let delta_x = rotation_move.x / window.x * std::f32::consts::PI * 2.0;
